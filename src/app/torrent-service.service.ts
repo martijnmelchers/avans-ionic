@@ -11,16 +11,18 @@ export class TorrentServiceService {
         this.client = new WebTorrent();
     }
 
-    startTorrent(link: string, callback: (file: WebTorrent.TorrentFile) => void): void {
+    async startTorrent(link: string): Promise<WebTorrent.TorrentFile> {
         // tslint:disable-next-line: no-unused-expression
-        this.client.add(link, (torrent: WebTorrent.Torrent) => {
-            let videofile = null;
-            console.log(torrent);
-            videofile =  torrent.files.find((file) => {
-                return file.name.endsWith('.mp4')
-            });
+        return new Promise<WebTorrent.TorrentFile>(resolve => {
+            this.client.add(link, (torrent: WebTorrent.Torrent) => {
+                let videofile = null;
+                console.log(torrent);
+                videofile =  torrent.files.find((file) => {
+                    return file.name.endsWith('.mp4')
+                });
 
-            callback(videofile);
+                resolve(videofile);
+            });
         });
     }
 }
