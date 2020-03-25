@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { PlayerPageRoutingModule } from './player-routing.module';
 
 import { PlayerPage } from './player.page';
+import { TorrentServiceService } from '../torrent-service.service';
 
 @NgModule({
   imports: [
@@ -16,5 +17,8 @@ import { PlayerPage } from './player.page';
     PlayerPageRoutingModule
   ],
   declarations: [PlayerPage],
+  providers: [
+      TorrentServiceService,
+  ]
 })
 export class PlayerPageModule {}
