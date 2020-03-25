@@ -1,0 +1,7 @@
+{
+  "name": "avans-ionic",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
