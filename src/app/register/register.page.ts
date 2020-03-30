@@ -14,7 +14,7 @@ export class RegisterPage implements OnInit {
   ngOnInit() {
   }
 
-  async register(form:Form) {
+  async register(form:any ) {
     const response = await this._authService.register(form.value);
     console.log(response);
   }
