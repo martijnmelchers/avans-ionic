@@ -1,11 +1,37 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Player</ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title>Player</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <div id="wrapper">
-        <video src="http://localhost:5000/stream" controls></video>
-    </div>
+    <ion-grid>
+        <ion-row>
+            <ion-col size="6">
+                <video #player class="video-js" controls width="900" data-setup='{}'>
+                    <source #source id="video" src="http://localhost:5000/stream" type="video/mp4">
+                </video>
+            </ion-col>
+            <ion-col size="6">
+                <ion-card>
+                    <ion-card-header>
+
+                        <ion-card-header>Download progress</ion-card-header>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-spinner></ion-spinner>
+                        <p>Speed: {{speed}}mb/s</p>
+
+                        <p>Peers: {{peers}}</p>
+                        <ion-progress-bar [value]="progress"
+                                          [color]="progress == 1 ? 'success' : 'primary'"></ion-progress-bar>
+
+                    </ion-card-content>
+
+                </ion-card>
+            </ion-col>
+        </ion-row>
+
+    </ion-grid>
+
 </ion-content>
