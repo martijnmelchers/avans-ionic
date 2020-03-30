@@ -4,6 +4,8 @@ import {environment} from '../../environments/environment';
 import {ToastController} from "@ionic/angular";
 import Socket = SocketIOClient.Socket;
 import videojs from 'video.js';
+import { SocketService } from '../socket.service';
+import { RoomService } from '../room.service';
 
 @Component({
     selector: 'app-player',
@@ -14,10 +16,9 @@ export class PlayerPage implements OnInit {
     @ViewChild('source', {static: true}) source;
    @ViewChild('player', {static: true}) playerEl;
    private player: videojs.Player;
-    private socket: Socket;
     private downloadProgress: { progress: number, speed: number, peers: number } = {progress: 0, speed: 0, peers: 0};
 
-    constructor(private toastController: ToastController) {
+    constructor(private toastController: ToastController, private socketService: SocketService, private roomService: RoomService) {
         Promise.all([this.initSocket()])
     }
 
@@ -37,7 +38,15 @@ export class PlayerPage implements OnInit {
         this.player = videojs(this.playerEl.nativeElement);
         this.player.on("metdataready", () => {
 
-        })
+        });
+
+
+        this.roomService.JoinRoom('sascha');
+        this.roomService.AddToQueue();
+
+        this.roomService.Queue.subscribe((res) => {
+            console.log("sadasdasd");
+        });
     }
 
     async startVideo() {
@@ -47,17 +56,22 @@ export class PlayerPage implements OnInit {
     }
 
     private async initSocket() {
-        this.socket = io.connect(`${environment.endpoints.api}`);
-        this.socket.on('progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
+        this.socketService.GetSocket();
+
+        this.socketService.GetSocket().emit('joinRoom', {room: 'Je kanker moeder'});
+
+        this.socketService.GetSocket().on('progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
             this.downloadProgress = currentProgress;
         });
 
-        this.socket.on('ready', async () => {
+
+        this.socketService.GetSocket().on('addToQueue',() => console.log( "xd"));
+        this.socketService.GetSocket().on('ready', async () => {
             console.log('READY EVENT RECEIVED!');
-            this.player.play()
+            this.player.play();
         });
 
-        this.socket.on('done', () => {
+        this.socketService.GetSocket().on('done', () => {
             this.downloadProgress.progress = 1;
         });
         const dcMsg = await this.toastController.create({message: 'Server disconnected you! Please wait while we reconnect... '});
@@ -65,13 +79,12 @@ export class PlayerPage implements OnInit {
             message: 'You\'re connected! Happy streaming!',
             duration: 2000
         });
-        this.socket.on('disconnect', async () => {
+
+        this.socketService.GetSocket().on('disconnect', async () => {
             await dcMsg.present();
             this.player.pause();
         });
-        this.socket.on('connect', async () => {
-
-
+        this.socketService.GetSocket().on('connect', async () => {
             await cMsg.present();
             await dcMsg.dismiss();
         });

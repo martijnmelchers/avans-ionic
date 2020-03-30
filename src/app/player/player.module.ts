@@ -8,6 +8,8 @@ import { PlayerPageRoutingModule } from './player-routing.module';
 
 import { PlayerPage } from './player.page';
 import { TorrentServiceService } from '../torrent-service.service';
+import { SocketService } from '../socket.service';
+import { RoomService } from '../room.service';
 
 @NgModule({
   imports: [
@@ -19,6 +21,8 @@ import { TorrentServiceService } from '../torrent-service.service';
   declarations: [PlayerPage],
   providers: [
       TorrentServiceService,
+      SocketService,
+      RoomService
   ]
 })
 export class PlayerPageModule {}
