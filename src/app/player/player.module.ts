@@ -10,6 +10,7 @@ import { PlayerPage } from './player.page';
 import { TorrentServiceService } from '../torrent-service.service';
 import { SocketService } from '../socket.service';
 import { RoomService } from '../room.service';
+import {RoomComponent} from '../room/room.component';
 
 @NgModule({
   imports: [
@@ -18,7 +19,7 @@ import { RoomService } from '../room.service';
     IonicModule,
     PlayerPageRoutingModule
   ],
-  declarations: [PlayerPage],
+  declarations: [PlayerPage, RoomComponent],
   providers: [
       TorrentServiceService,
       SocketService,
