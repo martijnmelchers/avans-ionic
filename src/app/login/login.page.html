@@ -1,23 +1,56 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Login</ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title>Login to your account</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <form id="loginForm" #form="ngForm" (ngSubmit)="login(form)">
-    <ion-item-group>
-        <ion-item>
-            <ion-label>Email</ion-label>
-            <ion-input name="email" ngModel required></ion-input>
-        </ion-item>
+    <form id="loginForm" #form="ngForm" (ngSubmit)="login(form)" (keydown)="onEnter($event, form)">
+        <ion-grid>
+            <ion-row class="ion-justify-content-center">
+                <ion-col size-md="6" size-lg="4" size-xs="12">
+                    <div class="ion-text-center">
+                        <h3>Welcome to Watch.IO</h3>
+                        <p>Login using your Watch.IO account to use our application, dont have an account yet?
+                            <a routerLink="/register">Register today!</a>
+                        </p>
+                    </div>
+                    <ion-item class="ion-margin">
+                        <ion-label position="stacked">Email</ion-label>
+                        <ion-input name="email" type="text" ngModel required placeholder="email@example.com"
+                                   inputmode="email"></ion-input>
+                    </ion-item>
 
-        <ion-item>
-            <ion-label>Password</ion-label>
-            <ion-input name="password" ngModel required type="password"></ion-input>
-        </ion-item>
-    </ion-item-group>
+                    <ion-item class="ion-margin">
+                        <ion-label position="stacked">Password</ion-label>
+                        <ion-input name="password" type="password" ngModel required placeholder="********"
+                                   inputmode="password"></ion-input>
+                    </ion-item>
 
-    <ion-button type="submit">Login</ion-button>
-  </form>
+
+                    <ion-grid class="ion-padding-start ion-padding-end">
+                        <ion-row>
+                            <ion-col>
+                                <ion-button expand="block" type="submit" class="ion-no-margin">Login</ion-button>
+                            </ion-col>
+                        </ion-row>
+                        <ion-row>
+                            <ion-col>
+                                <ion-button expand="block" type="button" class="ion-no-margin" color="google" (click)="loginWithGoogle()">
+                                    <ion-icon slot="start" name="logo-google"></ion-icon>
+                                    Login with Google
+                                </ion-button>
+                            </ion-col>
+                            <ion-col>
+                                <ion-button expand="block" type="button" class="ion-no-margin" color="facebook">
+                                    <ion-icon slot="start" name="logo-facebook"></ion-icon>
+                                    Login with Facebook
+                                </ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </form>
 </ion-content>
