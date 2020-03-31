@@ -28,6 +28,7 @@
     "@types/videojs": "^5.16.2",
     "@types/webtorrent": "^0.107.1",
     "core-js": "^3.6.4",
+    "jwt-decode": "^2.2.0",
     "rxjs": "~6.5.1",
     "socket.io-client": "^2.3.0",
     "tslib": "^1.10.0",

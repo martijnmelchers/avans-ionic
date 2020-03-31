@@ -11,6 +11,7 @@ export class LoginPage implements OnInit {
   constructor(private _authService: AuthService) { }
 
   ngOnInit() {
+      console.log(this._authService.getTokenData());
   }
 
   async login(form:any){

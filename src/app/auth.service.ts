@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { Form } from '@angular/forms';
 import { RequestOptions } from './requestoptions';
+import jwt_decode from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -18,9 +19,12 @@ export class AuthService {
         },
     }
 
-    return this.apiService.post('/users/login', postData);
-  }
+    let user:any  =  await this.apiService.post('/users/login', postData);
+    user = user.user;
 
+    this.saveToken(user);
+    return user;
+  }
 
   public async register(form: any): Promise<any>{
 
@@ -30,7 +34,21 @@ export class AuthService {
             password: form.password
         },
     }
+    let user:any =  await this.apiService.post('/users', postData);
+    user = user.user;
+    this.saveToken(user);
+    return user;
+  }
 
-    return this.apiService.post('/users', postData);
+  public getTokenData(): object {
+      const data: object  = jwt_decode(this.getToken());
+      return data;
+  }
+
+  public getToken(){
+      return localStorage.getItem('jwt');
+  }
+  private saveToken(user: any){
+        localStorage.setItem('jwt', user.token);
   }
 }
