@@ -11,6 +11,7 @@ import { TorrentServiceService } from '../torrent-service.service';
 import { SocketService } from '../socket.service';
 import { RoomService } from '../room.service';
 import { RoomComponent } from '../room/room.component';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 
 @NgModule({
     imports: [
@@ -23,7 +24,8 @@ import { RoomComponent } from '../room/room.component';
     providers: [
         TorrentServiceService,
         SocketService,
-        RoomService
+        RoomService,
+        ScreenOrientation
     ]
 })
 export class PlayerPageModule {

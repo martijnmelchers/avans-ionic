@@ -54,4 +54,8 @@ export class AuthService {
     public getToken() {
         return localStorage.getItem('jwt');
     }
+
+    logout() {
+        localStorage.removeItem('jwt')
+    }
 }

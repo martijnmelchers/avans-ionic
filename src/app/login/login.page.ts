@@ -11,11 +11,13 @@ import { Router } from '@angular/router';
     styleUrls: ['./login.page.scss']
 })
 export class LoginPage implements OnInit {
-    private invalidFormAlert: HTMLIonAlertElement;
 
 
-    constructor(private _auth: AuthService, private _iab: InAppBrowser, private _alert: AlertController, private _router: Router, private _loading: LoadingController) {
-
+    constructor(private _auth: AuthService, private _iab: InAppBrowser,
+                private _alert: AlertController, private _router: Router,
+                private _loading: LoadingController) {
+        if (this._auth.loggedIn)
+            this._router.navigate(['/']);
     }
 
     async ngOnInit() {
@@ -25,6 +27,10 @@ export class LoginPage implements OnInit {
     loginWithGoogle() {
         // TODO: Add login with google
         this._iab.create('http://google.com');
+    }
+
+    loginWithFacebook() {
+        this._iab.create('https://facebook.com');
     }
 
     async login(form: NgForm) {
@@ -45,6 +51,7 @@ export class LoginPage implements OnInit {
         try {
             await loading.present();
             await this._auth.login(form.value);
+            form.resetForm();
             await this._router.navigate(['/']);
             await loading.dismiss();
         } catch (e) {
@@ -53,8 +60,8 @@ export class LoginPage implements OnInit {
                 message: 'Invalid username and/or password, check your credentials and try again',
                 buttons: ['OK']
             });
-            await invalidCredentialsAlert.present();
             await loading.dismiss();
+            await invalidCredentialsAlert.present();
         }
 
     }

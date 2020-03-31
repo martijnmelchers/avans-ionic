@@ -7,14 +7,21 @@ import { IonicModule } from '@ionic/angular';
 import { RegisterPageRoutingModule } from './register-routing.module';
 
 import { RegisterPage } from './register.page';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RegisterPageRoutingModule
-  ],
-  declarations: [RegisterPage]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        RegisterPageRoutingModule
+    ],
+    providers: [
+        InAppBrowser
+    ],
+    declarations: [
+        RegisterPage
+    ]
 })
-export class RegisterPageModule {}
+export class RegisterPageModule {
+}

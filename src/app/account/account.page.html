@@ -1,0 +1,37 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-title>
+            Account
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-item color="none" lines="none">
+                    <ion-avatar slot="start">
+                        <ion-img src="./assets/default.png"></ion-img>
+                    </ion-avatar>
+                    <ion-label>
+                        <h2>Martijn Melchers</h2>
+                        <p>Member since: 01-01-0001</p>
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button expand="block" color="danger" (click)="logout()" fill="outline">
+                    Delete account
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand="block" color="danger" (click)="logout()">
+                    Logout
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

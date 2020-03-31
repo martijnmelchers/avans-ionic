@@ -1,33 +1,35 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import * as io from 'socket.io-client';
-import {environment} from '../../environments/environment';
-import {ToastController} from "@ionic/angular";
-import Socket = SocketIOClient.Socket;
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ToastController } from '@ionic/angular';
 import videojs from 'video.js';
 import { SocketService } from '../socket.service';
 import { RoomService } from '../room.service';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 
 @Component({
     selector: 'app-player',
     templateUrl: './player.page.html',
-    styleUrls: ['./player.page.scss'],
+    styleUrls: ['./player.page.scss']
 })
 export class PlayerPage implements OnInit {
     @ViewChild('source', {static: true}) source;
-   @ViewChild('player', {static: true}) playerEl;
-   private player: videojs.Player;
+    @ViewChild('player', {static: true}) playerEl;
+    private player: videojs.Player;
     private downloadProgress: { progress: number, speed: number, peers: number } = {progress: 0, speed: 0, peers: 0};
 
-    constructor(private toastController: ToastController, private socketService: SocketService, private roomService: RoomService) {
-        Promise.all([this.initSocket()])
+    constructor(private toastController: ToastController, private socketService: SocketService, private roomService: RoomService, private screenOrientation: ScreenOrientation) {
+        Promise.all([this.initSocket()]);
     }
 
     public get progress() {
         return this.downloadProgress.progress;
     }
 
+    public get buffer() {
+        return this.player.bufferedPercent();
+    }
+
     public get peers() {
-        return this.downloadProgress.peers
+        return this.downloadProgress.peers;
     }
 
     public get speed() {
@@ -35,7 +37,15 @@ export class PlayerPage implements OnInit {
     }
 
     ngOnInit() {
-        this.player = videojs(this.playerEl.nativeElement);
+        this.screenOrientation.onChange().subscribe(
+            () => {
+                setTimeout(x => this.player.dimension('width', window.innerWidth)
+                    , 50);
+            }
+        );
+        this.player = videojs(this.playerEl.nativeElement, {
+            width: window.innerWidth
+        });
         this.player.on("metdataready", () => {
 
         });
@@ -65,7 +75,7 @@ export class PlayerPage implements OnInit {
         });
 
 
-        this.socketService.GetSocket().on('addToQueue',() => console.log( "xd"));
+        this.socketService.GetSocket().on('addToQueue', () => console.log("xd"));
         this.socketService.GetSocket().on('ready', async () => {
             console.log('READY EVENT RECEIVED!');
             this.player.play();
