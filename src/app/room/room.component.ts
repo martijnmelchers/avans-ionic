@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {RoomService} from '../room.service';
+import {Room, RoomService} from '../room.service';
 import {NgForm} from '@angular/forms';
 
 @Component({
@@ -8,10 +8,13 @@ import {NgForm} from '@angular/forms';
   styleUrls: ['./room.component.scss'],
 })
 export class RoomComponent implements OnInit {
-
   constructor(private _roomService: RoomService) { }
-
-  ngOnInit() {}
+  private room: Room;
+  ngOnInit() {
+      this._roomService.GetRoom().subscribe((room) => {
+          this.room = room;
+      })
+  }
 
   joinRoom(form: NgForm){
       const roomName: string = form.value.roomName;

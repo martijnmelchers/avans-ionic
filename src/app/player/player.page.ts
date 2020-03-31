@@ -39,14 +39,7 @@ export class PlayerPage implements OnInit {
         this.player.on("metdataready", () => {
 
         });
-
-
-        this.roomService.JoinRoom('sascha');
         this.roomService.AddToQueue();
-
-        this.roomService.Queue.subscribe((res) => {
-            console.log("sadasdasd");
-        });
     }
 
     async startVideo() {
@@ -58,14 +51,11 @@ export class PlayerPage implements OnInit {
     private async initSocket() {
         this.socketService.GetSocket();
 
-        this.socketService.GetSocket().emit('joinRoom', {room: 'Je kanker moeder'});
-
         this.socketService.GetSocket().on('progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
             this.downloadProgress = currentProgress;
         });
 
 
-        this.socketService.GetSocket().on('addToQueue',() => console.log( "xd"));
         this.socketService.GetSocket().on('ready', async () => {
             console.log('READY EVENT RECEIVED!');
             this.player.play();
