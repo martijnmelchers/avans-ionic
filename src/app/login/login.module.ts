@@ -8,20 +8,20 @@ import { LoginPageRoutingModule } from './login-routing.module';
 
 import { LoginPage } from './login.page';
 import { AuthService } from '../auth.service';
-import { HttpClient } from '@angular/common/http';
-import { ApiService } from '../api.service';
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    LoginPageRoutingModule,
-
-  ],
-  providers: [
-    AuthService,
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        LoginPageRoutingModule
     ],
-  declarations: [LoginPage]
+    providers: [
+        AuthService,
+        InAppBrowser
+    ],
+    declarations: [LoginPage]
 })
-export class LoginPageModule {}
+export class LoginPageModule {
+}

@@ -10,20 +10,21 @@ import { PlayerPage } from './player.page';
 import { TorrentServiceService } from '../torrent-service.service';
 import { SocketService } from '../socket.service';
 import { RoomService } from '../room.service';
-import {RoomComponent} from '../room/room.component';
+import { RoomComponent } from '../room/room.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    PlayerPageRoutingModule
-  ],
-  declarations: [PlayerPage, RoomComponent],
-  providers: [
-      TorrentServiceService,
-      SocketService,
-      RoomService
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        IonicModule,
+        PlayerPageRoutingModule
+    ],
+    declarations: [PlayerPage, RoomComponent],
+    providers: [
+        TorrentServiceService,
+        SocketService,
+        RoomService
+    ]
 })
-export class PlayerPageModule {}
+export class PlayerPageModule {
+}

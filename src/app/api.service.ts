@@ -5,7 +5,7 @@ import { RequestOptions } from './requestoptions';
   providedIn: 'root'
 })
 export class ApiService {
-  static url: string = "http://localhost:5000/api";
+  static url: string = "http://localhost:5000";
   constructor(private readonly http: HttpClient) { }
 
   public async get<T>(endpoint: string, parameters: any = null, options: RequestOptions): Promise<T>{
