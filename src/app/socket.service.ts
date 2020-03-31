@@ -18,7 +18,7 @@ export class SocketService {
         return this._socket;
     }
 
-    on(event: string, fn: () => void): Emitter {
+    on(event: string, fn): Emitter {
         return this._socket.on(event, fn);
     };
 }
