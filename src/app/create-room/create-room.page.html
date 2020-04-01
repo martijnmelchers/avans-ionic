@@ -1,0 +1,45 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-title>
+            Create a new room
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+    <form id="loginForm" #form="ngForm" (ngSubmit)="createRoom(form)" (keydown)="onEnter($event, form)">
+        <ion-grid>
+            <ion-row class="ion-justify-content-center">
+                <ion-col size-md="6" size-lg="4" size-xs="12">
+                    <div class="ion-text-center">
+                        <h3>Create a room</h3>
+                        <p>
+                            Enter a unique room name and optionally a password, you can't change the name later so make
+                            sure you have the correct name!
+                        </p>
+                    </div>
+                    <ion-item class="ion-margin" color="none">
+                        <ion-label position="stacked">Room name</ion-label>
+                        <ion-input name="name" type="text" ngModel required placeholder="Our fancy room"
+                                   inputmode="email"></ion-input>
+                    </ion-item>
+
+                    <ion-item class="ion-margin"  color="none">
+                        <ion-label position="stacked">Password</ion-label>
+                        <ion-input name="password" type="password" ngModel placeholder="********"
+                                   inputmode="password" autocomplete="false"></ion-input>
+                    </ion-item>
+
+
+                    <ion-grid class="ion-padding-start ion-padding-end">
+                        <ion-row>
+                            <ion-col>
+                                <ion-button expand="block" type="submit" class="ion-no-margin">Create room</ion-button>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-col>
+            </ion-row>
+        </ion-grid>
+    </form>
+</ion-content>

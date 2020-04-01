@@ -1,28 +1,32 @@
 import { Component, OnInit } from '@angular/core';
-import {Room, RoomService} from '../room.service';
-import {NgForm} from '@angular/forms';
+import { Room, RoomService } from '../room.service';
+import { NgForm } from '@angular/forms';
+import { AuthService } from '../auth.service';
 
 @Component({
-  selector: 'app-room',
-  templateUrl: './room.component.html',
-  styleUrls: ['./room.component.scss'],
+	selector: 'app-room',
+	templateUrl: './room.component.html',
+	styleUrls: ['./room.component.scss']
 })
 export class RoomComponent implements OnInit {
-  constructor(private _roomService: RoomService) { }
-  private room: Room;
-  ngOnInit() {
-      this._roomService.GetRoom().subscribe((room) => {
-          this.room = room;
-      })
-  }
+	private room: Room;
 
-  joinRoom(form: NgForm){
-      const roomName: string = form.value.roomName;
-      this._roomService.JoinRoom(roomName);
-  }
+	constructor(private _roomService: RoomService, public auth: AuthService) {
+	}
 
-  createRoom(form:NgForm){
-      const roomName: string = form.value.roomName;
-      this._roomService.CreateRoom(roomName);
-  }
+	ngOnInit() {
+		this._roomService.GetRoom().subscribe((room) => {
+			this.room = room;
+		});
+	}
+
+	joinRoom(form: NgForm) {
+		const roomName: string = form.value.roomName;
+		this._roomService.JoinRoom(roomName);
+	}
+
+	createRoom(form: NgForm) {
+		const roomName: string = form.value.roomName;
+		this._roomService.CreateRoom(roomName);
+	}
 }

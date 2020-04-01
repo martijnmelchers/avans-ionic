@@ -3,25 +3,24 @@
         <ion-col size="12">
             <form #form="ngForm">
 
-            <ion-list>
-                <ion-item>
-                    <ion-label>Room name</ion-label>
-                    <ion-input name="roomName" ngModel required></ion-input>
-                </ion-item>
+                <ion-list>
+                    <ion-item>
+                        <ion-label>Room name</ion-label>
+                        <ion-input name="roomName" ngModel required></ion-input>
+                    </ion-item>
 
-                <!-- Item as a Button -->
-                <ion-item>
-                    <ion-button (click)="createRoom(form)" slot="start">Create room</ion-button>
-                    <ion-button (click)="joinRoom(form) "slot="end">Join room</ion-button>
-                </ion-item>
-            </ion-list>
+                    <!-- Item as a Button -->
+                    <ion-item>
+                        <ion-button (click)="createRoom(form)" slot="start">Create room</ion-button>
+                        <ion-button (click)="joinRoom(form) " slot="end">Join room</ion-button>
+                    </ion-item>
+                </ion-list>
 
             </form>
 
         </ion-col>
     </ion-row>
 </ion-grid>
-
 
 
 <ion-grid *ngIf="room">
@@ -32,29 +31,67 @@
     </ion-row>
     <ion-row>
         <ion-col size="12">
-            <ion-list class="room-list">
-                <ion-list-header>
-                    <ion-label>Queue</ion-label>
-                </ion-list-header>
+            <ion-card>
+                <ion-card-content>
+                    <ion-card-header>
+                        Queue
+                    </ion-card-header>
+                    <ion-list class="room-list">
+                        <ion-item>
+                            <ion-label>Test</ion-label>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label>Test</ion-label>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label>Test</ion-label>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label>Test</ion-label>
+                        </ion-item>
+                        <ion-item>
+                            <ion-label>Test</ion-label>
+                        </ion-item>
+                    </ion-list>
+                </ion-card-content>
+            </ion-card>
 
-                <ion-item><ion-label>Test</ion-label></ion-item>
-                <ion-item><ion-label>Test</ion-label></ion-item>
-                <ion-item><ion-label>Test</ion-label></ion-item>
-                <ion-item><ion-label>Test</ion-label></ion-item>
-                <ion-item><ion-label>Test</ion-label></ion-item>
-            </ion-list>
         </ion-col>
     </ion-row>
 
     <ion-row>
         <ion-col size="12">
-            <ion-list class="room-list">
-                <ion-list-header>Users</ion-list-header>
+            <ion-card>
+                <ion-card-header>
+                    <ion-card-title>Users</ion-card-title>
+                    <ion-card-subtitle>See the users in this room and manage them</ion-card-subtitle>
+                </ion-card-header>
+                <ion-card-content>
+                    <ion-item *ngFor="let user of room.Users" button="true">
+                        <ion-label>
+                            {{user.email}}
+                            <ion-icon name="shield-checkmark-outline" *ngIf="user._id == room.Owner"></ion-icon>
+                        </ion-label>
+                        <ion-icon name="close-outline" color="danger"></ion-icon>
+                        <ion-chip color="success" slot="end" button="false">
+                            <ion-label>Online</ion-label>
+                        </ion-chip>
+                    </ion-item>
+                </ion-card-content>
+            </ion-card>
+        </ion-col>
+    </ion-row>
 
-                <ion-item *ngFor="let user of room.Users" ><ion-label>{{user.email}}</ion-label></ion-item>
-
-
-            </ion-list>
+    <ion-row>
+        <ion-col size="12">
+            <ion-card>
+                <ion-card-header>
+                    Room settings
+                </ion-card-header>
+                <ion-card-content>
+                    Wait for everyone ready
+                </ion-card-content>
+            </ion-card>
         </ion-col>
     </ion-row>
 </ion-grid>

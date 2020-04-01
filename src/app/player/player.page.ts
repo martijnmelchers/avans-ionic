@@ -11,9 +11,9 @@ import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
     styleUrls: ['./player.page.scss']
 })
 export class PlayerPage implements OnInit {
-    @ViewChild('source', {static: true}) source;
-    @ViewChild('player', {static: true}) playerEl;
-    private player: videojs.Player;
+    @ViewChild('sourceEl', {static: true}) source;
+    @ViewChild('playerEl', {static: true}) playerEl;
+    public player: videojs.Player;
     private downloadProgress: { progress: number, speed: number, peers: number } = {progress: 0, speed: 0, peers: 0};
 
     constructor(private toastController: ToastController, private socketService: SocketService, private roomService: RoomService, private screenOrientation: ScreenOrientation) {
@@ -43,12 +43,14 @@ export class PlayerPage implements OnInit {
                     , 50);
             }
         );
-        this.player = videojs(this.playerEl.nativeElement, {
-            width: window.innerWidth
-        });
-        this.player.on("metdataready", () => {
 
+
+        this.player = videojs(this.playerEl.nativeElement, {
+            width: window.innerWidth,
+            preload: 'all'
         });
+        this.player.controls(true);
+
         this.roomService.AddToQueue();
     }
 
@@ -67,8 +69,8 @@ export class PlayerPage implements OnInit {
 
 
         this.socketService.GetSocket().on('ready', async () => {
-            console.log('READY EVENT RECEIVED!');
-            this.player.play();
+            this.player.controls(true);
+
         });
 
         this.socketService.GetSocket().on('done', () => {
@@ -82,6 +84,7 @@ export class PlayerPage implements OnInit {
 
         this.socketService.GetSocket().on('disconnect', async () => {
             await dcMsg.present();
+            this.player.controls(false);
             this.player.pause();
         });
         this.socketService.GetSocket().on('connect', async () => {

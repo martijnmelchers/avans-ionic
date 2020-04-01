@@ -18,6 +18,7 @@ export class Room {
     Id: string;
     Users: User[];
     Queue: QueueItem[];
+    Owner: string;
 }
 
 

@@ -18,13 +18,13 @@
                             Welcome to Watch.IO, to use our application please create an account.
                         </p>
                     </div>
-                    <ion-item class="ion-margin">
+                    <ion-item class="ion-margin" color="none">
                         <ion-label position="stacked">Email</ion-label>
                         <ion-input name="email" type="text" ngModel required placeholder="email@example.com"
                                    inputmode="email"></ion-input>
                     </ion-item>
 
-                    <ion-item class="ion-margin">
+                    <ion-item class="ion-margin" color="none">
                         <ion-label position="stacked">Password</ion-label>
                         <ion-input name="password" type="password" ngModel required placeholder="********"
                                    inputmode="password"></ion-input>
@@ -39,7 +39,8 @@
                         </ion-row>
                         <ion-row>
                             <ion-col>
-                                <ion-button expand="block" type="button" class="ion-no-margin" color="google" (click)="loginWithGoogle()">
+                                <ion-button expand="block" type="button" class="ion-no-margin" color="google"
+                                            (click)="loginWithGoogle()">
                                     <ion-icon slot="start" name="logo-google"></ion-icon>
                                     Sign up with Google
                                 </ion-button>
