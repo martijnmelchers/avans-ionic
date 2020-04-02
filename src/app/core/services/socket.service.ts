@@ -22,8 +22,8 @@ export class SocketService {
 	}
 
 	public destroy() {
-		this._socket.close();
 		this._socket.removeAllListeners();
+		this._socket.close();
 	}
 
 	on(event: string, fn: (...args: any[]) => void): Emitter {
