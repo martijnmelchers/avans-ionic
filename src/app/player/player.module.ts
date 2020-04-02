@@ -9,6 +9,7 @@ import { PlayerPageRoutingModule } from './player-routing.module';
 import { PlayerPage } from './player.page';
 import { SocketService } from '../core/services/socket.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
+import { UserDetailComponent } from './user-detail/user-detail.component';
 
 @NgModule({
 	imports: [
@@ -18,7 +19,8 @@ import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 		PlayerPageRoutingModule
 	],
 	declarations: [
-		PlayerPage
+		PlayerPage,
+		UserDetailComponent
 	],
 	providers: [
 		SocketService,
