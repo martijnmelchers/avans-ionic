@@ -18,6 +18,10 @@ export class RoomsPage implements OnInit {
 		await this.getRooms();
 	}
 
+	async ionViewWillEnter() {
+		await this.getRooms();
+	}
+
 	async ionViewDidEnter() {
 		await this.getRooms();
 	}

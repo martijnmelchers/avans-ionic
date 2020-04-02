@@ -35,11 +35,11 @@ export class RoomService {
 
 	getRoom(): Observable<Room> {
 		return new Observable<Room>((observer) => {
-			this.socketService.on('connectedToRoom', (data: Room) => {
+			this.socketService.on('room:connected', (data: Room) => {
 				observer.next(data);
 			});
 
-			this.socketService.on('roomChanged', (data: Room) => {
+			this.socketService.on('room:updated', (data: Room) => {
 				observer.next(data);
 			});
 		});

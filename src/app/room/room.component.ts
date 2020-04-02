@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Room, RoomService } from '../core/services/room.service';
-import { NgForm } from '@angular/forms';
 import { AuthService } from '../core/services/auth.service';
+import { ApiService } from '../core/services/api.service';
+import { Router } from '@angular/router';
 
 @Component({
 	selector: 'app-room',
@@ -11,7 +12,7 @@ import { AuthService } from '../core/services/auth.service';
 export class RoomComponent implements OnInit {
 	private room: Room;
 
-	constructor(private _roomService: RoomService, public auth: AuthService) {
+	constructor(private _roomService: RoomService, public auth: AuthService, private _api: ApiService, private _router: Router) {
 	}
 
 	ngOnInit() {
@@ -20,8 +21,24 @@ export class RoomComponent implements OnInit {
 		});
 	}
 
-	joinRoom(form: NgForm) {
-		const roomName: string = form.value.roomName;
-		this._roomService.joinRoom(roomName);
+	public async deleteRoom() {
+		if (this.room.Owner !== this.auth.userId)
+			return;
+
+		try {
+			await this._api.delete(`rooms/${encodeURIComponent(this.room.Id)}`);
+			await this._router.navigate(['/tabs/rooms']);
+		} catch(e) {
+
+		}
+
+	}
+
+	public async leaveRoom() {
+		if (this.room.Owner === this.auth.userId)
+			return;
+
+		await this._api.delete(`rooms/${encodeURIComponent(this.room.Id)}/leave`);
+		await this._router.navigate(['/tabs/rooms']);
 	}
 }

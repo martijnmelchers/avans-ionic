@@ -16,6 +16,7 @@ export class PlayerPage implements OnInit {
 	@ViewChild('playerEl', { static: true }) playerEl;
 	public player: videojs.Player;
 	private downloadProgress: { progress: number, speed: number, peers: number } = { progress: 0, speed: 0, peers: 0 };
+	private closed = false;
 
 	constructor(private toastController: ToastController, private socketService: SocketService,
 				private roomService: RoomService, private screenOrientation: ScreenOrientation,
@@ -45,20 +46,17 @@ export class PlayerPage implements OnInit {
 	}
 
 	ngOnInit() {
-		this.screenOrientation.onChange().subscribe(
-			() => {
-				setTimeout(x => this.player.dimension('width', window.innerWidth)
-					, 50);
+		this.screenOrientation.onChange().subscribe(() => {
+				setTimeout(x => this.player.dimension('width', window.innerWidth), 50);
 			}
 		);
-
 
 		this.player = videojs(this.playerEl.nativeElement, {
 			width: window.innerWidth,
 			preload: 'all'
 		});
-		this.player.controls(true);
 
+		this.player.controls(true);
 		this.roomService.AddToQueue();
 	}
 
@@ -89,14 +87,21 @@ export class PlayerPage implements OnInit {
 		});
 
 		const eMsg = await this.toastController.create({
-			message: 'An error occurred while connecting to this room!',
+			message: 'This room does not exist or you are not in this room',
 			duration: 2000
 		});
 
-		this.socketService.on('error', async (error: string) => {
-			console.error(error);
+		/* ROOM EVENTS */
+		this.socketService.on('room:error', async (error: string) => {
 			await eMsg.present();
+			await this.router.navigate(['/']);
 		});
+
+		this.socketService.on('room:deleted', async () => {
+			await this.router.navigate(['/']);
+		});
+
+		/* END ROOM EVENTS */
 
 		this.socketService.on('disconnect', async () => {
 			await dcMsg.present();
@@ -110,5 +115,10 @@ export class PlayerPage implements OnInit {
 		});
 
 		this.roomService.joinRoom(room);
+	}
+
+	async ionViewWillLeave() {
+		this.socketService.socket.removeAllListeners();
+		this.socketService.socket.close();
 	}
 }

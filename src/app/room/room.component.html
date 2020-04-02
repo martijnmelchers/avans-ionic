@@ -66,10 +66,10 @@
     </ion-row>
     <ion-row>
         <ion-col>
-            <ion-button expand="block" color="danger" fill="outline" *ngIf="auth.userId == room.Owner">
+            <ion-button expand="block" color="danger" fill="outline" *ngIf="auth.userId == room.Owner" (click)="deleteRoom()">
                 Delete room
             </ion-button>
-            <ion-button expand="block" color="danger" fill="outline" *ngIf="auth.userId != room.Owner">
+            <ion-button expand="block" color="danger" fill="outline" *ngIf="auth.userId != room.Owner" (click)="leaveRoom()">
                 Leave room
             </ion-button>
         </ion-col>

@@ -23,7 +23,7 @@ export class JoinRoomComponent implements OnInit {
 	}
 
 	async fetchRooms(page: number) {
-		const results = await this._api.get<Room[]>(`rooms/${page}`);
+		const results = await this._api.get<Room[]>(`rooms/page/${page}`);
 		if (results.length !== 20)
 			this.finished = true;
 		this.rooms = this.rooms.concat(results);
