@@ -5,7 +5,7 @@ import { PlayerPage } from './player.page';
 
 const routes: Routes = [
   {
-    path: '',
+    path: ':name',
     component: PlayerPage
   }
 ];

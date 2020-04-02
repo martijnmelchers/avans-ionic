@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Room, RoomService } from '../room.service';
+import { Room, RoomService } from '../core/services/room.service';
 import { NgForm } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
 	selector: 'app-room',
@@ -15,18 +15,13 @@ export class RoomComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this._roomService.GetRoom().subscribe((room) => {
+		this._roomService.getRoom().subscribe((room) => {
 			this.room = room;
 		});
 	}
 
 	joinRoom(form: NgForm) {
 		const roomName: string = form.value.roomName;
-		this._roomService.JoinRoom(roomName);
-	}
-
-	createRoom(form: NgForm) {
-		const roomName: string = form.value.roomName;
-		this._roomService.CreateRoom(roomName);
+		this._roomService.joinRoom(roomName);
 	}
 }

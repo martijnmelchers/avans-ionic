@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { RequestOptions } from '../../requestoptions';
+import { RequestOptions } from '../models/requestoptions';
 import { environment } from '../../../environments/environment';
 
 @Injectable({

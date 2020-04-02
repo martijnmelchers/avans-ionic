@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { LoginPageRoutingModule } from './login-routing.module';
 
 import { LoginPage } from './login.page';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../core/services/auth.service';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 
 @NgModule({

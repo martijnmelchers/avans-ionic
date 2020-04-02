@@ -3,29 +3,36 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './core/guard/auth.guard';
 
 const routes: Routes = [
-  {
-    path: '',
-    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'player',
-    loadChildren: () => import('./player/player.module').then( m => m.PlayerPageModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'login',
-    loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
-  },
-  {
-    path: 'register',
-    loadChildren: () => import('./register/register.module').then( m => m.RegisterPageModule)
-  }
+	{
+		path: '',
+		loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule),
+		canActivate: [AuthGuard]
+	},
+	{
+		path: 'player',
+		loadChildren: () => import('./player/player.module').then(m => m.PlayerPageModule),
+		canActivate: [AuthGuard]
+	},
+	{
+		path: 'rooms',
+		loadChildren: () => import('./join-room/join-room.module').then(m => m.JoinRoomModule),
+		canActivate: [AuthGuard]
+	},
+	{
+		path: 'login',
+		loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule)
+	},
+	{
+		path: 'register',
+		loadChildren: () => import('./register/register.module').then(m => m.RegisterPageModule)
+	}
 ];
+
 @NgModule({
-  imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
-  ],
-  exports: [RouterModule]
+	imports: [
+		RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
+	],
+	exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule {
+}

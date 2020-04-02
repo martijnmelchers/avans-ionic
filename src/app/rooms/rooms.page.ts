@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../core/services/api.service';
+import { Room } from '../core/services/room.service';
 
 @Component({
 	selector: 'app-tab1',
@@ -7,7 +8,7 @@ import { ApiService } from '../core/services/api.service';
 	styleUrls: ['rooms.page.scss']
 })
 export class RoomsPage implements OnInit {
-	private rooms: Array<any> = [];
+	private rooms: Room[] = [];
 
 	constructor(private _api: ApiService) {
 
