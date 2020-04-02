@@ -15,8 +15,8 @@
             <ion-label>
                 {{room.Id}}
             </ion-label>
-            <ion-icon slot="end" name="lock-closed-outline" *ngIf="room.Salt" color="success"></ion-icon>
-            <ion-icon slot="end" name="lock-open-outline" *ngIf="!room.Salt" color="danger"></ion-icon>
+            <ion-icon slot="end" name="lock-closed-outline" *ngIf="room.Password" color="success"></ion-icon>
+            <ion-icon slot="end" name="lock-open-outline" *ngIf="!room.Password" color="danger"></ion-icon>
             <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
         </ion-item>
         <ion-item *ngIf="rooms.length == 0" lines="none">

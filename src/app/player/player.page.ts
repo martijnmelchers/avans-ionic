@@ -48,8 +48,7 @@ export class PlayerPage implements OnInit {
 	}
 
 	async ionViewWillLeave() {
-		this._socket.socket.removeAllListeners();
-		this._socket.socket.close();
+		this._socket.destroy();
 	}
 
 	public async deleteRoom() {
@@ -75,11 +74,21 @@ export class PlayerPage implements OnInit {
 
 	private async initializePlayer(room: string) {
 		try {
+			this._socket.create();
 			this.room = await this._api.get(`rooms/${encodeURIComponent(room)}`);
 		} catch (e) {
 			await this._router.navigate(['/tabs/rooms']);
 			return;
 		}
+
+		this._socket.emit('room:connect', {
+			room,
+			user: this.auth.getToken()
+		});
+
+		this._socket.on('room:updated', (newRoom: Room) => {
+			this.room = newRoom;
+		});
 
 		this._orientation.onChange().subscribe(() => {
 				setTimeout(x => this.player.dimension('width', window.innerWidth), 50);
@@ -92,6 +101,7 @@ export class PlayerPage implements OnInit {
 		});
 
 		this.player.controls(true);
+
 		this._socket.on('progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
 			this.downloadProgress = currentProgress;
 		});

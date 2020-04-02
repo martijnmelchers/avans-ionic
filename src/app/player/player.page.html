@@ -100,10 +100,10 @@
                         <ion-card-subtitle>Click a user to display details</ion-card-subtitle>
                     </ion-card-header>
                     <ion-card-content>
-                        <ion-item *ngFor="let user of room.Users" button="true" class="ion-item-full">
+                        <ion-item *ngFor="let roomUser of room.Users" button="true" class="ion-item-full">
                             <ion-label class="ion-text-wrap">
-                                {{user.email}}
-                                <ion-icon name="shield-checkmark-outline" *ngIf="user._id == room.Owner"></ion-icon>
+                                {{roomUser.User.email}}
+                                <ion-icon name="shield-checkmark-outline" *ngIf="roomUser.User._id == room.Owner"></ion-icon>
                             </ion-label>
                             <ion-icon name="close-outline" color="danger"></ion-icon>
                             <ion-chip color="success" slot="end" button="false">

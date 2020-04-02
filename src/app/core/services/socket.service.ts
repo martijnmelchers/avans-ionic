@@ -8,14 +8,22 @@ import Emitter = SocketIOClient.Emitter;
 	providedIn: 'root'
 })
 export class SocketService {
-	private readonly _socket: SocketIOClient.Socket;
-
 	constructor() {
-		this._socket = io.connect(`${environment.endpoints.api}`);
 	}
+
+	private _socket: SocketIOClient.Socket;
 
 	get socket(): Socket {
 		return this._socket;
+	}
+
+	public create() {
+		this._socket = io.connect(`${environment.endpoints.api}`);
+	}
+
+	public destroy() {
+		this._socket.close();
+		this._socket.removeAllListeners();
 	}
 
 	on(event: string, fn: (...args: any[]) => void): Emitter {
