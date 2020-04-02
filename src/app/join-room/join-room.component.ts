@@ -44,7 +44,7 @@ export class JoinRoomComponent implements OnInit {
 
 		let password: string;
 
-		if (room.Salt) {
+		if (room.Password) {
 			const passwordMsg = await this._alert.create({
 				header: 'Enter room password',
 				subHeader: 'This room is protected with a password, to enter please enter the password below.',

@@ -20,8 +20,7 @@ export class Room {
 	Users: User[];
 	Queue: QueueItem[];
 	Owner: string;
-	Salt: string;
-	Hash: string;
+    Password: boolean;
 }
 
 
