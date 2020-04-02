@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../core/services/api.service';
-import { Room } from '../core/services/room.service';
+import { Room } from '../core/models/room';
 
 @Component({
 	selector: 'app-tab1',

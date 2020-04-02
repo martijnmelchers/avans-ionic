@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../core/services/api.service';
-import { Room } from '../core/services/room.service';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { Room } from '../core/models/room';
 
 @Component({
 	selector: 'app-join-room',
@@ -44,7 +44,7 @@ export class JoinRoomComponent implements OnInit {
 
 		let password: string;
 
-		if (room.Salt) {
+		if (room.Password) {
 			const passwordMsg = await this._alert.create({
 				header: 'Enter room password',
 				subHeader: 'This room is protected with a password, to enter please enter the password below.',

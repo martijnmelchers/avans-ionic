@@ -8,8 +8,6 @@ import { PlayerPageRoutingModule } from './player-routing.module';
 
 import { PlayerPage } from './player.page';
 import { SocketService } from '../core/services/socket.service';
-import { RoomService } from '../core/services/room.service';
-import { RoomComponent } from '../room/room.component';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 
 @NgModule({
@@ -20,12 +18,10 @@ import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 		PlayerPageRoutingModule
 	],
 	declarations: [
-		PlayerPage,
-		RoomComponent
+		PlayerPage
 	],
 	providers: [
 		SocketService,
-		RoomService,
 		ScreenOrientation
 	]
 })
