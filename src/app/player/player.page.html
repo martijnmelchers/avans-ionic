@@ -13,7 +13,7 @@
                     </ion-card-header>
                     <ion-card-content>
                         <ion-item lines="none" color="none" [detail]="false" class="ion-item-full">
-                            <ion-checkbox slot="start"></ion-checkbox>
+                            <ion-checkbox slot="start" (ionChange)="updateReadyState($event)" [checked]="ready"></ion-checkbox>
                             <ion-label>Ready</ion-label>
                         </ion-item>
                         <ion-grid>
@@ -109,13 +109,16 @@
                     </ion-card-header>
                     <ion-card-content>
                         <ion-item *ngFor="let roomUser of room.Users" button="true" class="ion-item-full"
-                                  [routerLink]="roomUser.User.email">
+                                  (click)="presentModal(roomUser.User.email)">
                             <ion-label class="ion-text-wrap">
                                 {{roomUser.User.email}}
                                 <ion-icon name="shield-checkmark-outline"
                                           *ngIf="roomUser.User._id == room.Owner"></ion-icon>
                             </ion-label>
-                            <ion-icon name="close-outline" color="danger"></ion-icon>
+
+                            <ion-icon name="checkmark" color="success" *ngIf="readyUsers.includes(roomUser.User._id)"></ion-icon>
+                            <ion-icon name="close" color="danger" *ngIf="!readyUsers.includes(roomUser.User._id)"></ion-icon>
+
                             <ion-chip color="success" slot="end" button="false" *ngIf="onlineUsers.includes(roomUser.User._id)">
                                 <ion-label>Online</ion-label>
                             </ion-chip>

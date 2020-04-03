@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ToastController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import videojs from 'video.js';
 import { SocketService } from '../core/services/socket.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
@@ -8,6 +8,7 @@ import { Room } from '../core/models/room';
 import { ApiService } from '../core/services/api.service';
 import { AuthService } from '../core/services/auth.service';
 import { User } from '../core/models/user';
+import { UserDetailComponent } from './user-detail/user-detail.component';
 
 @Component({
 	selector: 'app-player',
@@ -19,19 +20,18 @@ export class PlayerPage implements OnInit {
 	@ViewChild('playerEl', { static: true }) playerEl;
 	public player: videojs.Player;
 	public onlineUsers: string[] = [];
+	public readyUsers: string[] = [];
+
 	private downloadProgress: { progress: number, speed: number, peers: number } = { progress: 0, speed: 0, peers: 0 };
 	private room: Room;
-	private roomName: string;
+	private ready: boolean = false;
+	private readonly roomName: string;
 
 	constructor(private _toast: ToastController, private _socket: SocketService,
 				private _orientation: ScreenOrientation, private _router: Router,
 				private _route: ActivatedRoute, private _api: ApiService,
-				public auth: AuthService) {
+				public auth: AuthService, private _modal: ModalController) {
 		this.roomName = this._route.snapshot.paramMap.get('name');
-	}
-
-	async ionViewDidEnter() {
-		await this.initializePlayer(this.roomName);
 	}
 
 	public get progress() {
@@ -46,11 +46,15 @@ export class PlayerPage implements OnInit {
 		return Math.round(((this.downloadProgress.speed / 1000000) + Number.EPSILON) * 100) / 100;
 	}
 
+	async ionViewDidEnter() {
+		await this.initializePlayer(this.roomName);
+	}
+
 	ngOnInit() {
 
 	}
 
-	async ionViewWillLeave() {
+	async ionViewDidLeave() {
 		this._socket.destroy();
 	}
 
@@ -75,10 +79,28 @@ export class PlayerPage implements OnInit {
 		await this._router.navigate(['/tabs/rooms']);
 	}
 
+	async presentModal(email: string) {
+		const modal = await this._modal.create({
+			component: UserDetailComponent,
+			componentProps: {
+				room: this.room,
+				email
+			}
+		});
+
+		return await modal.present();
+	}
+
 	private async initializePlayer(room: string) {
 		try {
+			this.player = videojs(this.playerEl.nativeElement, {
+				width: window.innerWidth,
+				preload: 'all'
+			});
+			this.player.hide();
 			this._socket.create();
 			this.room = await this._api.get(`rooms/${encodeURIComponent(room)}`);
+			this.player.show();
 		} catch (e) {
 			await this._router.navigate(['/tabs/rooms']);
 			return;
@@ -89,17 +111,12 @@ export class PlayerPage implements OnInit {
 			}
 		);
 
-		this.player = videojs(this.playerEl.nativeElement, {
-			width: window.innerWidth,
-			preload: 'all'
-		});
 
 		this.player.controls(true);
 
 		this._socket.on('progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
 			this.downloadProgress = currentProgress;
 		});
-
 
 		this._socket.on('ready', async () => {
 			this.player.controls(true);
@@ -170,8 +187,34 @@ export class PlayerPage implements OnInit {
 		});
 
 		this._socket.on('room:user:online', (onlineUsers: string[]) => {
-			console.log(onlineUsers)
 			this.onlineUsers = onlineUsers;
+		});
+
+		this._socket.on('room:user:ready', (readyUsers: string[]) => {
+			this.readyUsers = readyUsers;
+		});
+
+		this._socket.on('room:user:kicked', async (user: User) => {
+			if (user._id === this.auth.userId) {
+				const kMsg = await this._toast.create({
+					message: `You were kicked from the room!`,
+					duration: 3000,
+					position: 'top',
+					color: 'danger'
+				});
+
+				await kMsg.present();
+				await this._router.navigate(['tabs/rooms']);
+			} else {
+				const kMsg = await this._toast.create({
+					message: `${user.email} was kicked from the room!`,
+					duration: 3000,
+					position: 'top',
+					color: 'danger'
+				});
+
+				await kMsg.present();
+			}
 		});
 
 		/* END USER EVENTS */
@@ -184,21 +227,30 @@ export class PlayerPage implements OnInit {
 		});
 
 		this._socket.on('connect', async () => {
-			console.log('connect run');
 			this.connectToRoom(room);
+			this.emitReadyState();
 			await cMsg.present();
 			await dcMsg.dismiss();
 		});
 
+		// Connect to the room and emit existing states
 		this.connectToRoom(room);
-
+		this.emitReadyState();
 	}
 
 	private connectToRoom(room: string) {
-		console.log(`Attempt connect to: ${room}`);
 		this._socket.emit('room:connect', {
 			room,
 			user: this.auth.getToken()
 		});
+	}
+
+	private emitReadyState() {
+		this._socket.emit('room:user:ready', this.ready);
+	}
+
+	updateReadyState($event) {
+		this.ready = $event.detail.checked;
+		this.emitReadyState();
 	}
 }
