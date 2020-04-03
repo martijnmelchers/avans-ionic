@@ -4,6 +4,7 @@ import { ApiService } from '../../core/services/api.service';
 import { Room } from '../../core/models/room';
 import { User } from '../../core/models/user';
 import { ActivatedRoute } from '@angular/router';
+import {RoomUser} from '../../core/models/room-user';
 
 @Component({
 	selector: 'app-user-detail',
@@ -11,9 +12,9 @@ import { ActivatedRoute } from '@angular/router';
 	styleUrls: ['./user-detail.component.scss']
 })
 export class UserDetailComponent implements OnInit {
-	public room: Room;
-	public user: User;
-
+	public room: Room = new Room();
+	public user: RoomUser;
+    public roles: any;
 	constructor(public auth: AuthService, private _api: ApiService, private _route: ActivatedRoute) {
 
 	}
@@ -23,7 +24,9 @@ export class UserDetailComponent implements OnInit {
 		const userEmail = this._route.snapshot.paramMap.get('email');
 
 		this.room = await this._api.get(`rooms/${encodeURIComponent(roomName)}`);
-		this.user = await this._api.get(`rooms/${encodeURIComponent(roomName)}/${encodeURIComponent(userEmail)}`);
+		this.user = await this._api.get(`rooms/${encodeURIComponent(roomName)}/users/${encodeURIComponent(userEmail)}`);
+        this.roles = this.room.Users.find((usr) => usr.User.email === userEmail).Roles;
+        console.log(this.roles);
 	}
 
 }
