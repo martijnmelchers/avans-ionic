@@ -9,9 +9,11 @@ import { ApiService } from '../core/services/api.service';
 import { AuthService } from '../core/services/auth.service';
 import { User } from '../core/models/user';
 import { UserDetailComponent } from './user-detail/user-detail.component';
-import { environment } from '../../environments/environment';
 import { TorrentAddComponent } from './torrent-add/torrent-add.component';
 import { HapticsImpactStyle, Plugins } from '@capacitor/core';
+import { PlayerState } from '../core/models/player-state';
+import { TorrentStatus } from '../core/models/torrent-status';
+import { environment } from '../../environments/environment';
 
 const { Haptics } = Plugins;
 
@@ -21,16 +23,20 @@ const { Haptics } = Plugins;
 	styleUrls: ['./player.page.scss']
 })
 export class PlayerPage {
+
 	@ViewChild('sourceEl', { static: true }) source;
 	@ViewChild('playerEl', { static: true }) playerEl;
+
 	public player: videojs.Player;
+
+	/* Data received via WebSockets */
 	public onlineUsers: string[] = [];
 	public readyUsers: string[] = [];
-	public playerReady = false;
-	function;
-	private downloadProgress: { progress: number, speed: number, peers: number } = { progress: 0, speed: 0, peers: 0 };
+	public torrentStates: TorrentStatus[] = [];
+
+	/* Internal states */
+	public playerState: PlayerState = PlayerState.Loading;
 	private room: Room;
-	private ready = false;
 	private readonly roomName: string;
 	private eventReceived = false;
 	private initialConnect = false;
@@ -45,29 +51,24 @@ export class PlayerPage {
 		this.roomName = this._route.snapshot.paramMap.get('name');
 	}
 
-	public get progress() {
-		return this.downloadProgress.progress;
-	}
-
-	public get peers() {
-		return this.downloadProgress.peers;
-	}
-
-	public get speed() {
-		return Math.round(((this.downloadProgress.speed / 1000000) + Number.EPSILON) * 100) / 100;
-	}
-
 	async ionViewDidEnter() {
-		console.log('did_enter:called');
 		if (!this.isInitialized)
 			await this.initializePlayer(this.roomName);
 	}
 
 	async ionViewDidLeave() {
-		console.log('did_leave:called');
+		// Destroy sockets
 		this._socket.destroy();
-		this.playerReady = false;
+		// Dispose player state
+		this.player.dispose();
+		this.playerState = PlayerState.Uninitialized;
+		// Reset booleans
 		this.isInitialized = false;
+		this.eventReceived = false;
+		// Reset arrays back to empty state
+		this.onlineUsers = [];
+		this.readyUsers = [];
+		this.torrentStates = [];
 	}
 
 	public async deleteRoom() {
@@ -103,11 +104,6 @@ export class PlayerPage {
 		return await modal.present();
 	}
 
-	updateReadyState($event) {
-		this.ready = $event.detail.checked;
-		this.emitReadyState();
-	}
-
 	async openAddToQueueModal() {
 		const modal = await this._modal.create({
 			component: TorrentAddComponent,
@@ -134,7 +130,9 @@ export class PlayerPage {
 			if (this.hasManagerPermissions())
 				this.player.controls(true);
 		} catch (e) {
+			console.error(e);
 			await this._router.navigate(['/tabs/rooms']);
+
 			return;
 		}
 
@@ -143,16 +141,16 @@ export class PlayerPage {
 			}
 		);
 
-		this._socket.on('progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
-			this.downloadProgress = currentProgress;
+		this._socket.on('room:torrent:progress', (data: TorrentStatus) => {
+			const existing = this.torrentStates.find(x => x.hash === data.hash);
 		});
 
-		this._socket.on('ready', async () => {
+		this._socket.on('room:torrent:ready', async () => {
 			this.player.controls(true);
 		});
 
-		this._socket.on('done', () => {
-			this.downloadProgress.progress = 1;
+		this._socket.on('room:torrent:done', (hash: string) => {
+
 		});
 		const dcMsg = await this._toast.create({ message: 'Server disconnected you! Please wait while we reconnect... ' });
 		const cMsg = await this._toast.create({
@@ -165,6 +163,13 @@ export class PlayerPage {
 		this._socket.on('room:connected', async () => {
 			await this.hideConnecting();
 			this.initialConnect = true;
+			if (this.room.Queue.length === 0)
+				this.playerState = PlayerState.NothingPlaying;
+			else
+				this.player.src({
+					src: `${environment.endpoints.api}stream/${this.getFirstQueueItem().InfoHash}`,
+					type: 'video/mp4'
+				});
 		});
 
 		this._socket.on('room:updated', async (newRoom: Room) => {
@@ -267,16 +272,14 @@ export class PlayerPage {
 			if (this.initialConnect) {
 				this.showConnecting();
 				this.connectToRoom(room);
-				this.emitReadyState();
 			}
 
 			await cMsg.present();
 			await dcMsg.dismiss();
 		});
 
-		// Connect to the room and emit existing states
+		// Connect to the room
 		this.connectToRoom(room);
-		this.emitReadyState();
 	}
 
 	private connectToRoom(room: string) {
@@ -284,10 +287,6 @@ export class PlayerPage {
 			room,
 			user: this.auth.getToken()
 		});
-	}
-
-	private emitReadyState() {
-		this._socket.emit('room:user:ready', this.ready);
 	}
 
 	private createPlayerListeners() {
@@ -299,13 +298,21 @@ export class PlayerPage {
 		this.player.hide();
 
 		this.player.on('loadedmetadata', (e) => {
-			console.log(e);
+			console.log('metadata ready!');
 			this.player.show();
-			this.playerReady = true;
+			this.playerState = PlayerState.Ready;
 		});
 
+		this.player.on('error', () => {
+			this.playerState = PlayerState.Error;
+		});
+
+
+		// else
+		// 	this.player.src({ src: `${environment.endpoints.api}stream/${this.getFirstQueueItem()}`, type: 'video/mp4'});
+
 		/* TODO: REPLACE THIS */
-		this.player.src({ src: `${environment.endpoints.api}stream`, type: 'video/mp4' });
+		// this.player.src({ src: `${environment.endpoints.api}stream/${this.room.Queue[0].}`, type: 'video/mp4' });
 
 
 		/* PLAYER EVENT LISTENERS */
@@ -354,18 +361,18 @@ export class PlayerPage {
 		});
 	}
 
+	private getFirstQueueItem() {
+		return this.room.Queue.find(x => x.Position === 1);
+	}
+
 	private async showConnecting() {
 		this.loading = await this._loading.create({
 			message: 'Connecting to room...'
 		});
 		await this.loading.present();
-		console.log('connectcalled');
-
-
 	}
 
 	private async hideConnecting() {
-		console.log('hidecalled');
 		await this.loading.dismiss();
 	}
 }

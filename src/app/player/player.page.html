@@ -1,18 +1,27 @@
 <ion-content>
-    <video #playerEl class="video-js">
-    </video>
-    <ion-item lines="none" *ngIf="!playerReady">
+    <video #playerEl class="video-js"></video>
+    <ion-item lines="none" *ngIf="playerState == 1">
         <ion-spinner slot="start">
-
         </ion-spinner>
         <ion-label>
-
             Loading player...
         </ion-label>
     </ion-item>
-    <ion-grid>
+    <ion-item lines="none" *ngIf="playerState == 3">
+        <ion-label  class="ion-text-wrap ion-text-center">
+            An error occurred while loading the player.<br>
+            If this error keeps occurring your device might not be able to play this file.<br>
+            Retrying in 5 seconds...
+        </ion-label>
+    </ion-item>
+    <ion-item lines="none" *ngIf="playerState == 4">
+        <ion-label class="ion-text-wrap">
+            Nothing is playing right now! Add something to the queue to start watching!
+        </ion-label>
+    </ion-item>
+    <ion-grid *ngIf="room">
         <ion-row>
-            <ion-col size="12">
+            <ion-col size-xs="12" size-lg="4">
 
                 <ion-card>
                     <ion-card-header>
@@ -20,18 +29,8 @@
                         <ion-card-subtitle>Control the player using the buttons below</ion-card-subtitle>
                     </ion-card-header>
                     <ion-card-content>
-                        <ion-item lines="none" color="none" [detail]="false" class="ion-item-full">
-                            <ion-checkbox slot="start" (ionChange)="updateReadyState($event)"
-                                          [checked]="ready"></ion-checkbox>
-                            <ion-label>Ready</ion-label>
-                        </ion-item>
                         <ion-grid>
-                            <ion-row>
-                                <ion-col>
-                                    <ion-button size="small" (click)="player.play()">
-                                        <ion-icon name="play"></ion-icon>
-                                    </ion-button>
-                                </ion-col>
+                            <ion-row *ngIf="!hasManagerPermissions()">
                                 <ion-col>
                                     <ion-button size="small">
                                         <ion-icon name="volume-low"></ion-icon>
@@ -47,32 +46,38 @@
                                         <ion-icon name="volume-mute"></ion-icon>
                                     </ion-button>
                                 </ion-col>
+                            </ion-row>
+                            <ion-row *ngIf="hasManagerPermissions()">
                                 <ion-col>
                                     <ion-button size="small">
                                         <ion-icon name="volume-mute"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col>
+                                    <ion-button size="small">
+                                        <ion-icon name="next"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col>
+                                    <ion-button size="small">
+                                        <ion-icon name="play-skip-forward"></ion-icon>
                                     </ion-button>
                                 </ion-col>
                             </ion-row>
                         </ion-grid>
 
 
-                        <p>Speed: {{speed}}mb/s</p>
+<!--                        <p>Speed: {{speed}}mb/s</p>-->
 
-                        <p>Peers: {{peers}}</p>
-                        <ion-progress-bar [value]="progress" [buffer]="progress"
-                                          [color]="progress == 1 ? 'success' : 'primary'"></ion-progress-bar>
+<!--                        <p>Peers: {{peers}}</p>-->
+<!--                        <ion-progress-bar [value]="progress" [buffer]="progress"-->
+<!--                                          [color]="progress == 1 ? 'success' : 'primary'"></ion-progress-bar>-->
 
                     </ion-card-content>
 
                 </ion-card>
             </ion-col>
-        </ion-row>
-
-    </ion-grid>
-
-    <ion-grid *ngIf="room">
-        <ion-row>
-            <ion-col size="12">
+            <ion-col size-xs="12" size-lg="4">
                 <ion-card>
                     <ion-card-header>
                         <ion-card-title>Queue</ion-card-title>
@@ -85,43 +90,16 @@
                         <ion-item class="ion-item-full" lines="none" *ngIf="room.Queue.length == 0">
                             There is currently nothing in the queue!
                         </ion-item>
-                        <ion-button expand="block" size="small" color="primary" fill="outline" *ngIf="hasManagerPermissions()"
+                        <ion-button expand="block" size="small" color="primary" fill="outline"
+                                    *ngIf="hasManagerPermissions()"
                                     (click)="openAddToQueueModal()">
                             Add to queue
                         </ion-button>
-
-
-                        <!--                        <ion-list>-->
-                        <!--                            <ion-item class="ion-item-full" button lines="none">-->
-                        <!--                                <ion-label>-->
-                        <!--                                    Iron Man (2012)-->
-                        <!--                                </ion-label>-->
-                        <!--                            </ion-item>-->
-                        <!--                            <ion-progress-bar [value]=".66" [buffer]=".75"-->
-                        <!--                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>-->
-                        <!--                            <ion-item class="ion-item-full" button lines="none">-->
-                        <!--                                <ion-label>-->
-                        <!--                                    End Game (2019)-->
-                        <!--                                </ion-label>-->
-                        <!--                            </ion-item>-->
-                        <!--                            <ion-progress-bar [value]=".33" [buffer]=".45"-->
-                        <!--                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>-->
-                        <!--                            <ion-item class="ion-item-full" button lines="none">-->
-                        <!--                                <ion-label>-->
-                        <!--                                    Pulp Fiction (1994)-->
-                        <!--                                </ion-label>-->
-                        <!--                            </ion-item>-->
-                        <!--                            <ion-progress-bar [value]=".05" [buffer]=".11"-->
-                        <!--                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>-->
-                        <!--                        </ion-list>-->
                     </ion-card-content>
                 </ion-card>
 
             </ion-col>
-        </ion-row>
-
-        <ion-row>
-            <ion-col size="12">
+            <ion-col size-xs="12" size-lg="4">
                 <ion-card>
                     <ion-card-header>
                         <ion-card-title>Users</ion-card-title>
@@ -154,21 +132,8 @@
                 </ion-card>
             </ion-col>
         </ion-row>
-
         <ion-row>
-            <ion-col size="12">
-                <ion-card>
-                    <ion-card-header>
-                        Room settings
-                    </ion-card-header>
-                    <ion-card-content>
-                        Wait for everyone ready
-                    </ion-card-content>
-                </ion-card>
-            </ion-col>
-        </ion-row>
-        <ion-row>
-            <ion-col>
+            <ion-col size-lg="2" offset-lg="4">
                 <ion-button expand="block" color="danger" fill="outline" *ngIf="auth.userId == room.Owner"
                             (click)="deleteRoom()">
                     Delete room
@@ -178,7 +143,7 @@
                     Leave room
                 </ion-button>
             </ion-col>
-            <ion-col>
+            <ion-col size-lg="2">
                 <ion-button expand="block" routerLink="/">
                     Back
                 </ion-button>
