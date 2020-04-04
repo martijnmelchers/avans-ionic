@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ModalController, ToastController } from '@ionic/angular';
+import { Component, ViewChild } from '@angular/core';
+import { LoadingController, ModalController, ToastController } from '@ionic/angular';
 import videojs from 'video.js';
 import { SocketService } from '../core/services/socket.service';
 import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
@@ -11,13 +11,16 @@ import { User } from '../core/models/user';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 import { environment } from '../../environments/environment';
 import { TorrentAddComponent } from './torrent-add/torrent-add.component';
+import { HapticsImpactStyle, Plugins } from '@capacitor/core';
+
+const { Haptics } = Plugins;
 
 @Component({
 	selector: 'app-player',
 	templateUrl: './player.page.html',
 	styleUrls: ['./player.page.scss']
 })
-export class PlayerPage implements OnInit {
+export class PlayerPage {
 	@ViewChild('sourceEl', { static: true }) source;
 	@ViewChild('playerEl', { static: true }) playerEl;
 	public player: videojs.Player;
@@ -31,11 +34,14 @@ export class PlayerPage implements OnInit {
 	private readonly roomName: string;
 	private eventReceived = false;
 	private initialConnect = false;
+	private isInitialized = false;
+	private loading: HTMLIonLoadingElement;
 
 	constructor(private _toast: ToastController, private _socket: SocketService,
 				private _orientation: ScreenOrientation, private _router: Router,
 				private _route: ActivatedRoute, private _api: ApiService,
-				public auth: AuthService, private _modal: ModalController) {
+				public auth: AuthService, private _modal: ModalController,
+				private _loading: LoadingController) {
 		this.roomName = this._route.snapshot.paramMap.get('name');
 	}
 
@@ -52,16 +58,16 @@ export class PlayerPage implements OnInit {
 	}
 
 	async ionViewDidEnter() {
-		await this.initializePlayer(this.roomName);
-	}
-
-	ngOnInit() {
-
+		console.log('did_enter:called');
+		if (!this.isInitialized)
+			await this.initializePlayer(this.roomName);
 	}
 
 	async ionViewDidLeave() {
+		console.log('did_leave:called');
 		this._socket.destroy();
 		this.playerReady = false;
+		this.isInitialized = false;
 	}
 
 	public async deleteRoom() {
@@ -119,6 +125,8 @@ export class PlayerPage implements OnInit {
 
 	private async initializePlayer(room: string) {
 		try {
+			this.isInitialized = true;
+			await this.showConnecting();
 			this._socket.create();
 			this.createPlayerListeners();
 			this.room = await this._api.get(`rooms/${encodeURIComponent(room)}`);
@@ -154,7 +162,12 @@ export class PlayerPage implements OnInit {
 
 
 		/* ROOM EVENTS */
-		this._socket.on('room:updated', (newRoom: Room) => {
+		this._socket.on('room:connected', async () => {
+			await this.hideConnecting();
+			this.initialConnect = true;
+		});
+
+		this._socket.on('room:updated', async (newRoom: Room) => {
 			this.room = newRoom;
 		});
 
@@ -224,6 +237,9 @@ export class PlayerPage implements OnInit {
 					color: 'danger'
 				});
 
+				Haptics.impact({ style: HapticsImpactStyle.Heavy });
+				Haptics.vibrate();
+
 				await kMsg.present();
 				await this._router.navigate(['tabs/rooms']);
 			} else {
@@ -249,6 +265,7 @@ export class PlayerPage implements OnInit {
 
 		this._socket.on('connect', async () => {
 			if (this.initialConnect) {
+				this.showConnecting();
 				this.connectToRoom(room);
 				this.emitReadyState();
 			}
@@ -260,7 +277,6 @@ export class PlayerPage implements OnInit {
 		// Connect to the room and emit existing states
 		this.connectToRoom(room);
 		this.emitReadyState();
-		this.initialConnect = true;
 	}
 
 	private connectToRoom(room: string) {
@@ -336,5 +352,20 @@ export class PlayerPage implements OnInit {
 		this._socket.on('room:player:source', async (data: { user: string, source: string }) => {
 			console.log(data);
 		});
+	}
+
+	private async showConnecting() {
+		this.loading = await this._loading.create({
+			message: 'Connecting to room...'
+		});
+		await this.loading.present();
+		console.log('connectcalled');
+
+
+	}
+
+	private async hideConnecting() {
+		console.log('hidecalled');
+		await this.loading.dismiss();
 	}
 }

@@ -3,6 +3,7 @@ import { AuthService } from '../core/services/auth.service';
 import { Router } from '@angular/router';
 import { User } from '../core/models/user';
 import { ApiService } from '../core/services/api.service';
+import { CameraResultType, CameraSource, Plugins } from '@capacitor/core';
 
 @Component({
 	selector: 'app-account',
@@ -11,6 +12,7 @@ import { ApiService } from '../core/services/api.service';
 })
 export class AccountPage implements OnInit {
 	private account: User = new User();
+	private currentImage: string;
 
 	constructor(private auth: AuthService, private router: Router, private _api: ApiService) {
 
@@ -31,4 +33,14 @@ export class AccountPage implements OnInit {
 		await this.router.navigate(['login']);
 	}
 
+	async openCamera() {
+		const image = await Plugins.Camera.getPhoto({
+			quality: 100,
+			allowEditing: false,
+			resultType: CameraResultType.DataUrl,
+			source: CameraSource.Camera
+		});
+
+		console.log(image);
+	}
 }
