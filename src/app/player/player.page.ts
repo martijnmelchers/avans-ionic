@@ -9,6 +9,7 @@ import { ApiService } from '../core/services/api.service';
 import { AuthService } from '../core/services/auth.service';
 import { User } from '../core/models/user';
 import { UserDetailComponent } from './user-detail/user-detail.component';
+import { environment } from '../../environments/environment';
 
 @Component({
 	selector: 'app-player',
@@ -21,11 +22,13 @@ export class PlayerPage implements OnInit {
 	public player: videojs.Player;
 	public onlineUsers: string[] = [];
 	public readyUsers: string[] = [];
-
+	public playerReady = false;
+	function;
 	private downloadProgress: { progress: number, speed: number, peers: number } = { progress: 0, speed: 0, peers: 0 };
 	private room: Room;
-	private ready: boolean = false;
+	private ready = false;
 	private readonly roomName: string;
+	private eventReceived = false;
 
 	constructor(private _toast: ToastController, private _socket: SocketService,
 				private _orientation: ScreenOrientation, private _router: Router,
@@ -56,6 +59,7 @@ export class PlayerPage implements OnInit {
 
 	async ionViewDidLeave() {
 		this._socket.destroy();
+		this.playerReady = false;
 	}
 
 	public async deleteRoom() {
@@ -91,16 +95,16 @@ export class PlayerPage implements OnInit {
 		return await modal.present();
 	}
 
+	updateReadyState($event) {
+		this.ready = $event.detail.checked;
+		this.emitReadyState();
+	}
+
 	private async initializePlayer(room: string) {
 		try {
-			this.player = videojs(this.playerEl.nativeElement, {
-				width: window.innerWidth,
-				preload: 'all'
-			});
-			this.player.hide();
-			this._socket.create();
 			this.room = await this._api.get(`rooms/${encodeURIComponent(room)}`);
-			this.player.show();
+			this._socket.create();
+			this.createPlayerListeners();
 		} catch (e) {
 			await this._router.navigate(['/tabs/rooms']);
 			return;
@@ -110,9 +114,6 @@ export class PlayerPage implements OnInit {
 				setTimeout(x => this.player.dimension('width', window.innerWidth), 50);
 			}
 		);
-
-
-		this.player.controls(true);
 
 		this._socket.on('progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
 			this.downloadProgress = currentProgress;
@@ -227,8 +228,11 @@ export class PlayerPage implements OnInit {
 		});
 
 		this._socket.on('connect', async () => {
-			this.connectToRoom(room);
-			this.emitReadyState();
+			if (!this._socket.socket.connected) {
+				this.connectToRoom(room);
+				this.emitReadyState();
+			}
+
 			await cMsg.present();
 			await dcMsg.dismiss();
 		});
@@ -249,8 +253,67 @@ export class PlayerPage implements OnInit {
 		this._socket.emit('room:user:ready', this.ready);
 	}
 
-	updateReadyState($event) {
-		this.ready = $event.detail.checked;
-		this.emitReadyState();
+	private createPlayerListeners() {
+		this.player = videojs(this.playerEl.nativeElement, {
+			width: window.innerWidth,
+			preload: 'all'
+		});
+
+		this.player.hide();
+
+		this.player.on('loadedmetadata', (a, b) => {
+			console.log('metadata loaded!', a, b);
+			this.player.show();
+			this.playerReady = true;
+		});
+
+		/* TODO: REPLACE THIS */
+		this.player.controls(true);
+
+
+		/* TODO: REPLACE THIS */
+		this.player.src({ src: `${environment.endpoints.api}stream`, type: 'video/mp4' });
+
+
+		/* PLAYER EVENT LISTENERS */
+		this.player.on('pause', (e) => {
+			if (this.eventReceived)
+				this.eventReceived = false;
+			else
+				this._socket.emit('room:user:pause');
+		});
+
+		this.player.on('play', (e) => {
+			if (this.eventReceived)
+				this.eventReceived = false;
+			else
+				this._socket.emit('room:user:play', this.player.currentTime());
+		});
+		/* PLAYER EVENT END */
+
+		this.player.on('waiting', (e) => {
+			this._socket.emit('room:user:buffering');
+		});
+
+		this.player.on('playing', (e) => {
+			this._socket.emit('room:user:buffering:done');
+		});
+
+		this._socket.on('room:player:play', async (data: { user: string, time: number }) => {
+			if (data.user === this.auth.userId)
+				return;
+
+			this.eventReceived = true;
+			this.player.currentTime(data.time);
+			await this.player.play();
+		});
+
+		this._socket.on('room:player:pause', async (data: { user: string }) => {
+			if (data.user === this.auth.userId)
+				return;
+
+			this.eventReceived = true;
+			await this.player.pause();
+		});
 	}
 }

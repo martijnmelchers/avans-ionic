@@ -1,7 +1,16 @@
 <ion-content>
     <video #playerEl class="video-js" controls style="max-width:100vw" data-setup='{}'>
-        <source #sourceEl id="video" src="http://localhost:5000/stream" type="video/mp4">
+        <!--<source #sourceEl id="video" src="http://localhost:5000/stream" type="video/mp4">-->
     </video>
+    <ion-item color="none" lines="none" *ngIf="!playerReady">
+        <ion-spinner slot="start">
+
+        </ion-spinner>
+        <ion-label>
+
+            Loading player...
+        </ion-label>
+    </ion-item>
     <ion-grid>
         <ion-row>
             <ion-col size="12">
@@ -13,7 +22,8 @@
                     </ion-card-header>
                     <ion-card-content>
                         <ion-item lines="none" color="none" [detail]="false" class="ion-item-full">
-                            <ion-checkbox slot="start" (ionChange)="updateReadyState($event)" [checked]="ready"></ion-checkbox>
+                            <ion-checkbox slot="start" (ionChange)="updateReadyState($event)"
+                                          [checked]="ready"></ion-checkbox>
                             <ion-label>Ready</ion-label>
                         </ion-item>
                         <ion-grid>
@@ -116,13 +126,17 @@
                                           *ngIf="roomUser.User._id == room.Owner"></ion-icon>
                             </ion-label>
 
-                            <ion-icon name="checkmark" color="success" *ngIf="readyUsers.includes(roomUser.User._id)"></ion-icon>
-                            <ion-icon name="close" color="danger" *ngIf="!readyUsers.includes(roomUser.User._id)"></ion-icon>
+                            <ion-icon name="checkmark" color="success"
+                                      *ngIf="readyUsers.includes(roomUser.User._id)"></ion-icon>
+                            <ion-icon name="close" color="danger"
+                                      *ngIf="!readyUsers.includes(roomUser.User._id)"></ion-icon>
 
-                            <ion-chip color="success" slot="end" button="false" *ngIf="onlineUsers.includes(roomUser.User._id)">
+                            <ion-chip color="success" slot="end" button="false"
+                                      *ngIf="onlineUsers.includes(roomUser.User._id)">
                                 <ion-label>Online</ion-label>
                             </ion-chip>
-                            <ion-chip color="danger" slot="end" button="false" *ngIf="!onlineUsers.includes(roomUser.User._id)">
+                            <ion-chip color="danger" slot="end" button="false"
+                                      *ngIf="!onlineUsers.includes(roomUser.User._id)">
                                 <ion-label>Offline</ion-label>
                             </ion-chip>
                         </ion-item>
