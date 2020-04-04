@@ -114,7 +114,8 @@ export class PlayerPage implements OnInit {
 
 		this.player.controls(true);
 
-		this._socket.on('progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
+		this._socket.on('room:torrent:progress', (currentProgress: { progress: number, speed: number, peers: number }) => {
+		    console.log(currentProgress);
 			this.downloadProgress = currentProgress;
 		});
 
@@ -122,7 +123,7 @@ export class PlayerPage implements OnInit {
 			this.player.controls(true);
 		});
 
-		this._socket.on('done', () => {
+		this._socket.on('room:torrent:done', () => {
 			this.downloadProgress.progress = 1;
 		});
 		const dcMsg = await this._toast.create({ message: 'Server disconnected you! Please wait while we reconnect... ' });
@@ -187,6 +188,7 @@ export class PlayerPage implements OnInit {
 		});
 
 		this._socket.on('room:user:online', (onlineUsers: string[]) => {
+		    console.log(onlineUsers);
 			this.onlineUsers = onlineUsers;
 		});
 

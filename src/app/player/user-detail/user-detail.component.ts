@@ -26,7 +26,7 @@ export class UserDetailComponent implements OnInit {
 		console.log(this.room);
 		console.log(this.email);
 		this.user = await this._api.get(`rooms/${encodeURIComponent(this.room.Id)}/users/${encodeURIComponent(this.email)}`);
-		this.roles = this.room.Users.find((usr) => usr.User.email === this.email).Roles;
+		this.roles = this.room.Users.find((usr) => usr.User.email === this.email).Role;
 		console.log(this.roles);
 	}
 
