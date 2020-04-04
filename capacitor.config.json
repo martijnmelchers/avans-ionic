@@ -1,0 +1,6 @@
+{
+  "appId": "com.avans.watchio",
+  "appName": "Watch.IO",
+  "webDir": "www",
+  "npmClient": "npm"
+}

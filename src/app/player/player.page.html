@@ -1,8 +1,7 @@
 <ion-content>
-    <video #playerEl class="video-js" controls style="max-width:100vw" data-setup='{}'>
-        <!--<source #sourceEl id="video" src="http://localhost:5000/stream" type="video/mp4">-->
+    <video #playerEl class="video-js">
     </video>
-    <ion-item color="none" lines="none" *ngIf="!playerReady">
+    <ion-item lines="none" *ngIf="!playerReady">
         <ion-spinner slot="start">
 
         </ion-spinner>
@@ -80,30 +79,41 @@
                         <ion-card-subtitle>Click a queue item to display details</ion-card-subtitle>
                     </ion-card-header>
                     <ion-card-content>
+                        <ion-item class="ion-item-full" button lines="none" *ngFor="let queue of room.Queue">
+                            {{queue.MagnetUri}}
+                        </ion-item>
+                        <ion-item class="ion-item-full" lines="none" *ngIf="room.Queue.length == 0">
+                            There is currently nothing in the queue!
+                        </ion-item>
+                        <ion-button expand="block" size="small" color="primary" fill="outline" *ngIf="hasManagerPermissions()"
+                                    (click)="openAddToQueueModal()">
+                            Add to queue
+                        </ion-button>
 
-                        <ion-list>
-                            <ion-item class="ion-item-full" button lines="none">
-                                <ion-label>
-                                    Iron Man (2012)
-                                </ion-label>
-                            </ion-item>
-                            <ion-progress-bar [value]=".66" [buffer]=".75"
-                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>
-                            <ion-item class="ion-item-full" button lines="none">
-                                <ion-label>
-                                    End Game (2019)
-                                </ion-label>
-                            </ion-item>
-                            <ion-progress-bar [value]=".33" [buffer]=".45"
-                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>
-                            <ion-item class="ion-item-full" button lines="none">
-                                <ion-label>
-                                    Pulp Fiction (1994)
-                                </ion-label>
-                            </ion-item>
-                            <ion-progress-bar [value]=".05" [buffer]=".11"
-                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>
-                        </ion-list>
+
+                        <!--                        <ion-list>-->
+                        <!--                            <ion-item class="ion-item-full" button lines="none">-->
+                        <!--                                <ion-label>-->
+                        <!--                                    Iron Man (2012)-->
+                        <!--                                </ion-label>-->
+                        <!--                            </ion-item>-->
+                        <!--                            <ion-progress-bar [value]=".66" [buffer]=".75"-->
+                        <!--                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>-->
+                        <!--                            <ion-item class="ion-item-full" button lines="none">-->
+                        <!--                                <ion-label>-->
+                        <!--                                    End Game (2019)-->
+                        <!--                                </ion-label>-->
+                        <!--                            </ion-item>-->
+                        <!--                            <ion-progress-bar [value]=".33" [buffer]=".45"-->
+                        <!--                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>-->
+                        <!--                            <ion-item class="ion-item-full" button lines="none">-->
+                        <!--                                <ion-label>-->
+                        <!--                                    Pulp Fiction (1994)-->
+                        <!--                                </ion-label>-->
+                        <!--                            </ion-item>-->
+                        <!--                            <ion-progress-bar [value]=".05" [buffer]=".11"-->
+                        <!--                                              [color]="progress == 1 ? 'success' : 'secondary'"></ion-progress-bar>-->
+                        <!--                        </ion-list>-->
                     </ion-card-content>
                 </ion-card>
 
@@ -121,7 +131,7 @@
                         <ion-item *ngFor="let roomUser of room.Users" button="true" class="ion-item-full"
                                   (click)="presentModal(roomUser.User.email)">
                             <ion-label class="ion-text-wrap">
-                                {{roomUser.User.email}}
+                                {{roomUser.User.firstName}}
                                 <ion-icon name="shield-checkmark-outline"
                                           *ngIf="roomUser.User._id == room.Owner"></ion-icon>
                             </ion-label>

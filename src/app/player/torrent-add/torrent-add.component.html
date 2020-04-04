@@ -1,0 +1,38 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-title>
+            Add to queue
+        </ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="closeModal()">Close</ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content>
+    <form id="loginForm" #form="ngForm" (ngSubmit)="addToQueue(form)" (keydown)="onEnter($event, form)">
+
+        <ion-grid>
+            <ion-row>
+                <ion-col>
+                    <ion-item class="ion-margin" color="none">
+                        <ion-label position="stacked">Magnet URI</ion-label>
+                        <ion-input name="magnetUri" type="text" ngModel required placeholder="magnet?:...."
+                                   inputmode="text"></ion-input>
+                    </ion-item>
+                </ion-col>
+              <ion-col>
+                  <ion-button expand="block" type="submit" size="small" class="ion-no-margin" (click)="selectFile()">Select file</ion-button>
+
+              </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-grid>
+                    <ion-button expand="block" type="submit" class="ion-no-margin">Search TMDb</ion-button>
+                </ion-grid>
+            </ion-row>
+        </ion-grid>
+
+
+    </form>
+
+</ion-content>

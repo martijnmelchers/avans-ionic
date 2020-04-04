@@ -10,6 +10,7 @@ import { AuthService } from '../core/services/auth.service';
 import { User } from '../core/models/user';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 import { environment } from '../../environments/environment';
+import { TorrentAddComponent } from './torrent-add/torrent-add.component';
 
 @Component({
 	selector: 'app-player',
@@ -29,6 +30,7 @@ export class PlayerPage implements OnInit {
 	private ready = false;
 	private readonly roomName: string;
 	private eventReceived = false;
+	private initialConnect = false;
 
 	constructor(private _toast: ToastController, private _socket: SocketService,
 				private _orientation: ScreenOrientation, private _router: Router,
@@ -100,11 +102,29 @@ export class PlayerPage implements OnInit {
 		this.emitReadyState();
 	}
 
+	async openAddToQueueModal() {
+		const modal = await this._modal.create({
+			component: TorrentAddComponent,
+			componentProps: {
+				room: this.room
+			}
+		});
+
+		return await modal.present();
+	}
+
+	public hasManagerPermissions() {
+		return this.room.Users.find(x => x.User._id === this.auth.userId).Role?.PermissionLevel > 0 || this.room.Owner === this.auth.userId;
+	}
+
 	private async initializePlayer(room: string) {
 		try {
-			this.room = await this._api.get(`rooms/${encodeURIComponent(room)}`);
 			this._socket.create();
 			this.createPlayerListeners();
+			this.room = await this._api.get(`rooms/${encodeURIComponent(room)}`);
+
+			if (this.hasManagerPermissions())
+				this.player.controls(true);
 		} catch (e) {
 			await this._router.navigate(['/tabs/rooms']);
 			return;
@@ -165,7 +185,7 @@ export class PlayerPage implements OnInit {
 		/* USER EVENTS */
 		this._socket.on('room:user:leaved', async (user: User) => {
 			const jMsg = await this._toast.create({
-				message: `${user.email} left the room!`,
+				message: `${user.firstName} left the room!`,
 				duration: 3000,
 				position: 'top',
 				color: 'danger'
@@ -177,7 +197,7 @@ export class PlayerPage implements OnInit {
 
 		this._socket.on('room:user:joined', async (user: User) => {
 			const jMsg = await this._toast.create({
-				message: `${user.email} joined the room!`,
+				message: `${user.firstName} joined the room!`,
 				duration: 3000,
 				position: 'top',
 				color: 'success'
@@ -208,7 +228,7 @@ export class PlayerPage implements OnInit {
 				await this._router.navigate(['tabs/rooms']);
 			} else {
 				const kMsg = await this._toast.create({
-					message: `${user.email} was kicked from the room!`,
+					message: `${user.firstName} was kicked from the room!`,
 					duration: 3000,
 					position: 'top',
 					color: 'danger'
@@ -228,7 +248,7 @@ export class PlayerPage implements OnInit {
 		});
 
 		this._socket.on('connect', async () => {
-			if (!this._socket.socket.connected) {
+			if (this.initialConnect) {
 				this.connectToRoom(room);
 				this.emitReadyState();
 			}
@@ -240,6 +260,7 @@ export class PlayerPage implements OnInit {
 		// Connect to the room and emit existing states
 		this.connectToRoom(room);
 		this.emitReadyState();
+		this.initialConnect = true;
 	}
 
 	private connectToRoom(room: string) {
@@ -261,15 +282,11 @@ export class PlayerPage implements OnInit {
 
 		this.player.hide();
 
-		this.player.on('loadedmetadata', (a, b) => {
-			console.log('metadata loaded!', a, b);
+		this.player.on('loadedmetadata', (e) => {
+			console.log(e);
 			this.player.show();
 			this.playerReady = true;
 		});
-
-		/* TODO: REPLACE THIS */
-		this.player.controls(true);
-
 
 		/* TODO: REPLACE THIS */
 		this.player.src({ src: `${environment.endpoints.api}stream`, type: 'video/mp4' });
@@ -314,6 +331,10 @@ export class PlayerPage implements OnInit {
 
 			this.eventReceived = true;
 			await this.player.pause();
+		});
+
+		this._socket.on('room:player:source', async (data: { user: string, source: string }) => {
+			console.log(data);
 		});
 	}
 }

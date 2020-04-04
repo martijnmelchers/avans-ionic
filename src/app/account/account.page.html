@@ -15,15 +15,15 @@
                         <ion-img src="./assets/default.png"></ion-img>
                     </ion-avatar>
                     <ion-label>
-                        <h2>Martijn Melchers</h2>
-                        <p>Member since: 01-01-0001</p>
+                        <h2>{{account.firstName}} {{account.lastName}}</h2>
+                        <p>{{account.email}}</p>
                     </ion-label>
                 </ion-item>
             </ion-col>
         </ion-row>
         <ion-row>
             <ion-col>
-                <ion-button expand="block" color="danger" (click)="logout()" fill="outline">
+                <ion-button expand="block" color="danger" (click)="deleteAccount()" fill="outline">
                     Delete account
                 </ion-button>
             </ion-col>

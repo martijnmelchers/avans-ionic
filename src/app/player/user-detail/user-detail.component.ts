@@ -23,11 +23,8 @@ export class UserDetailComponent implements OnInit {
 	}
 
 	async ngOnInit() {
-		console.log(this.room);
-		console.log(this.email);
 		this.user = await this._api.get(`rooms/${encodeURIComponent(this.room.Id)}/users/${encodeURIComponent(this.email)}`);
-		this.roles = this.room.Users.find((usr) => usr.User.email === this.email).Roles;
-		console.log(this.roles);
+		this.roles = this.room.Users.find((usr) => usr.User.email === this.email).Role.Name;
 	}
 
 	async kickUser() {
@@ -38,8 +35,6 @@ export class UserDetailComponent implements OnInit {
 	}
 
 	public async closeModal() {
-		// using the injected ModalController this page
-		// can "dismiss" itself and optionally pass back data
 		await this._modal.dismiss({
 			dismissed: true
 		});

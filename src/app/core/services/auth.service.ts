@@ -13,6 +13,10 @@ export class AuthService {
 		return localStorage.getItem('jwt') != null;
 	}
 
+	public get userId() {
+		return this.getJwtData()?.id;
+	}
+
 	private static saveToken(user: any) {
 		localStorage.setItem('jwt', user.token);
 	}
@@ -21,10 +25,8 @@ export class AuthService {
 
 
 		let user: any = await this.api.post('users/login', {
-			user: {
-				email: form.email,
-				password: form.password
-			}
+			email: form.email,
+			password: form.password
 		});
 		user = user.user;
 
@@ -35,10 +37,10 @@ export class AuthService {
 	public async register(form: any): Promise<any> {
 
 		const postData: object = {
-			user: {
-				email: form.email,
-				password: form.password
-			}
+			firstName: form.firstName,
+			lastName: form.lastName,
+			email: form.email,
+			password: form.password
 		};
 		let user: any = await this.api.post('users', postData);
 		user = user.user;
@@ -61,9 +63,5 @@ export class AuthService {
 
 	public logout() {
 		localStorage.removeItem('jwt');
-	}
-
-	public get userId() {
-		return this.getJwtData()?.id;
 	}
 }

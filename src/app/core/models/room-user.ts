@@ -1,6 +1,7 @@
 import { User } from './user';
+import { Role } from './role';
 
 export class RoomUser {
-	Roles: string[];
+	Role: Role;
 	User: User;
 }

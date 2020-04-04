@@ -8,6 +8,7 @@ import { RegisterPageRoutingModule } from './register-routing.module';
 
 import { RegisterPage } from './register.page';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
 @NgModule({
     imports: [
@@ -17,7 +18,8 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
         RegisterPageRoutingModule
     ],
     providers: [
-        InAppBrowser
+        InAppBrowser,
+        GooglePlus
     ],
     declarations: [
         RegisterPage

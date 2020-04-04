@@ -1,4 +1,5 @@
 export class QueueItem {
-	magnet: string;
-	Id: string;
+	Position: number;
+	MagnetUri: string;
+	Owner: string;
 }
