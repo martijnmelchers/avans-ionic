@@ -24,3 +24,21 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+.ion-color-google {
+  --ion-color-base:   #DB4437;
+  --ion-color-base-rgb: 255,255,0;
+  --ion-color-contrast: #fff;
+  --ion-color-contrast-rgb: 0,0,0;
+  --ion-color-shade: darken(#DB4437, 10%);
+  --ion-color-tint: #ffff1a;
+}
+
+.ion-color-facebook {
+  --ion-color-base:   #4267B2;
+  --ion-color-base-rgb: 255,255,0;
+  --ion-color-contrast: #fff;
+  --ion-color-contrast-rgb: 0,0,0;
+  --ion-color-shade: darken(#4267B2, 10%);
+  --ion-color-tint: #ffff1a;
+}

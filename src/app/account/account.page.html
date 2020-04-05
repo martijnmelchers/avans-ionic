@@ -1,0 +1,47 @@
+<ion-header [translucent]="true">
+    <ion-toolbar>
+        <ion-title>
+            Account
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+    <ion-grid>
+        <ion-row>
+            <ion-col>
+                <ion-item color="none" lines="none">
+                    <ion-avatar slot="start">
+                        <ion-img [src]="photo" *ngIf="photo"></ion-img>
+                        <ion-img src="./assets/default.png" *ngIf="!photo"></ion-img>
+                    </ion-avatar>
+                    <ion-label>
+                        <h2>{{account.firstName}} {{account.lastName}}</h2>
+                        <p>{{account.email}}</p>
+                    </ion-label>
+                </ion-item>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+
+        </ion-row>
+
+        <ion-row>
+            <ion-col>
+                <ion-button  expand="block" (click)="openCamera()">
+                    Take profile picture
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand="block" color="danger" (click)="deleteAccount()" fill="outline">
+                    Delete account
+                </ion-button>
+            </ion-col>
+            <ion-col>
+                <ion-button expand="block" color="danger" (click)="logout()">
+                    Logout
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

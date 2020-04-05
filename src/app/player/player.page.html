@@ -1,11 +1,178 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Player</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
-    <div id="wrapper">
+    <video #playerEl class="video-js"></video>
+    <ion-item lines="none" *ngIf="playerState == 1 || playerState == 0">
+        <ion-spinner slot="start">
+        </ion-spinner>
+        <ion-label>
+            Loading player...
+        </ion-label>
+    </ion-item>
+    <ion-item lines="none" *ngIf="playerState == 3">
+        <ion-label class="ion-text-wrap ion-text-center">
+            An error occurred while loading the player.<br>
+            If this error keeps occurring your device might not be able to play this file.<br>
+            Retrying in 5 seconds...
+        </ion-label>
+    </ion-item>
+    <ion-item lines="none" *ngIf="playerState == 4">
+        <ion-label class="ion-text-wrap">
+            Nothing is playing right now! Add something to the queue to start watching!
+        </ion-label>
+    </ion-item>
+    <ion-grid *ngIf="room">
+        <ion-row>
+            <ion-col size-xs="12" size-lg="4">
 
-    </div>
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Options</ion-card-title>
+                        <ion-card-subtitle>Control the player using the buttons below</ion-card-subtitle>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col>
+                                    <ion-button size="small" expand="block"
+                                                (click)="player.volume(player.volume() - 0.1)">
+                                        Volume down
+                                        <ion-icon name="volume-low" slot="end"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col>
+                                    <ion-button size="small" expand="block"
+                                                (click)="player.volume(player.volume() + 0.1)">
+                                        Volume up
+                                        <ion-icon name="volume-high" slot="end"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col>
+                                    <ion-button size="small" expand="block" (click)="player.volume(0)">
+                                        Mute audio
+                                        <ion-icon name="volume-mute" slot="end"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col>
+                                    <ion-button size="small" expand="block" (click)="player.requestFullscreen()">
+                                        Fullscreen
+                                        <ion-icon name="expand" slot="end"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                            </ion-row>
+                            <ion-row *ngIf="hasManagerPermissions()">
+                                <ion-col>
+                                    <ion-button size="small" expand="block" (click)="forceSync()">
+                                        Force sync
+                                        <ion-icon name="refresh" slot="end"></ion-icon>
+
+                                    </ion-button>
+                                </ion-col>
+                                <ion-col>
+                                    <ion-button size="small" expand="block" [disabled]="room.Queue.length < 1" (click)="playNext()">
+                                        Next in queue
+                                        <ion-icon name="play-skip-forward" slot="end"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-card-content>
+
+                </ion-card>
+            </ion-col>
+            <ion-col size-xs="12" size-lg="4">
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Queue</ion-card-title>
+                        <ion-card-subtitle>Click a queue item to display details</ion-card-subtitle>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-reorder-group (ionItemReorder)="doReorder($event)" [disabled]="!hasManagerPermissions()">
+                            <div *ngFor="let queue of room.Queue" (click)="openTorrentDetailModal(queue)">
+                                <ion-item class="ion-item-full" button lines="none">
+                                    <ion-label class="ion-text-wrap">
+                                        {{queue.Title}} ({{getReleaseYear(queue.Release)}})
+                                    </ion-label>
+                                    <ion-icon name="checkmark" *ngIf="readyTorrents.includes(queue.InfoHash)"
+                                              color="success"></ion-icon>
+                                    <ion-reorder slot="end"></ion-reorder>
+                                </ion-item>
+                                <ion-progress-bar [buffer]="getProgress(queue.InfoHash)"
+                                                  [value]="getProgress(queue.InfoHash)"
+                                                  [color]="getProgress(queue.InfoHash) == 1 ? 'success' : 'primary'"></ion-progress-bar>
+                            </div>
+                        </ion-reorder-group>
+                        <ion-item class="ion-item-full" lines="none" *ngIf="room.Queue.length == 0">
+                            There is currently nothing in the queue!
+                        </ion-item>
+                        <ion-button expand="block" size="small" class="ion-margin-top" color="primary" fill="outline"
+                                    *ngIf="hasManagerPermissions()"
+                                    (click)="openAddToQueueModal()">
+                            Add to queue
+                        </ion-button>
+                    </ion-card-content>
+                </ion-card>
+
+            </ion-col>
+            <ion-col size-xs="12" size-lg="4">
+                <ion-card>
+                    <ion-card-header>
+                        <ion-card-title>Users</ion-card-title>
+                        <ion-card-subtitle>Click a user to display details</ion-card-subtitle>
+                    </ion-card-header>
+                    <ion-card-content>
+                        <ion-item *ngFor="let roomUser of room.Users" button="true" class="ion-item-full"
+                                  (click)="openUserDetailModal(roomUser.User.email)">
+                                <ion-avatar slot="start">
+                                    <ion-img [src]="roomUser.User.profilePicture" *ngIf="roomUser.User.profilePicture"></ion-img>
+                                    <ion-img src="./assets/default.png" *ngIf="!roomUser.User.profilePicture"></ion-img>
+                                </ion-avatar>
+                                <ion-label>
+                                    <h2>
+                                        {{roomUser.User.firstName}} {{roomUser.User.lastName}}
+                                        <ion-icon name="shield-checkmark-outline"
+                                                  *ngIf="roomUser.User._id == room.Owner"></ion-icon>
+                                        <ion-icon name="build-outline"
+                                                  *ngIf="hasManagerPermissions(roomUser.User._id) && roomUser.User._id != room.Owner"></ion-icon>
+                                    </h2>
+                                    <p>{{roomUser.User.email}}</p>
+                                </ion-label>
+                            <ion-chip color="success" slot="end" button="false"
+                                      *ngIf="onlineUsers.includes(roomUser.User._id)">
+                                <ion-label>Online</ion-label>
+                            </ion-chip>
+                            <ion-chip color="danger" slot="end" button="false"
+                                      *ngIf="!onlineUsers.includes(roomUser.User._id)">
+                                <ion-label>Offline</ion-label>
+                            </ion-chip>
+                        </ion-item>
+                        <ion-button expand="block" size="small" class="ion-margin-top" color="primary" fill="outline"
+                                    *ngIf="auth.userId == room.Owner"
+                                    (click)="openInviteUserModal()">
+                            Invite user
+                        </ion-button>
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size-lg="2" offset-lg="4">
+                <ion-button expand="block" color="danger" class="ion-padding-start" fill="outline"
+                            *ngIf="auth.userId == room.Owner"
+                            (click)="deleteRoom()">
+                    Delete room
+                </ion-button>
+                <ion-button expand="block" color="danger" class="ion-padding-start" fill="outline"
+                            *ngIf="auth.userId != room.Owner"
+                            (click)="leaveRoom()">
+                    Leave room
+                </ion-button>
+            </ion-col>
+            <ion-col size-lg="2">
+                <ion-button expand="block" routerLink="/" class="ion-padding-end">
+                    Back
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+
+
 </ion-content>

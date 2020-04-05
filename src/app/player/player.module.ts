@@ -7,14 +7,35 @@ import { IonicModule } from '@ionic/angular';
 import { PlayerPageRoutingModule } from './player-routing.module';
 
 import { PlayerPage } from './player.page';
+import { SocketService } from '../core/services/socket.service';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
+import { UserDetailComponent } from './user-detail/user-detail.component';
+import { TorrentDetailComponent } from './torrent-detail/torrent-detail.component';
+import { TorrentAddComponent } from './torrent-add/torrent-add.component';
+import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import { InviteUserComponent } from './invite-user/invite-user.component';
+import { UserTorrentDetailComponent } from './user-detail/user-torrent-detail/user-torrent-detail.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    PlayerPageRoutingModule
-  ],
-  declarations: [PlayerPage],
+	imports: [
+		CommonModule,
+		FormsModule,
+		IonicModule,
+		PlayerPageRoutingModule
+	],
+	declarations: [
+		PlayerPage,
+		UserDetailComponent,
+		TorrentDetailComponent,
+		TorrentAddComponent,
+		InviteUserComponent,
+		UserTorrentDetailComponent
+	],
+	providers: [
+		SocketService,
+		ScreenOrientation,
+		FileChooser
+	]
 })
-export class PlayerPageModule {}
+export class PlayerPageModule {
+}
