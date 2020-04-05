@@ -30,6 +30,10 @@ export class SocketService {
 		return this._socket.on(event, fn);
 	};
 
+	once(event: string, fn: (...args: any[]) => void): Emitter {
+		return this._socket.once(event, fn);
+	}
+
 	emit(event: string, ...args: any[]) {
 		this._socket.emit(event, ...args);
 	}

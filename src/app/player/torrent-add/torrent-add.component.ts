@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { NgForm } from '@angular/forms';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import { ApiService } from '../../core/services/api.service';
+import { Room } from '../../core/models/room';
 
 @Component({
   selector: 'app-torrent-add',
@@ -9,8 +11,10 @@ import { FileChooser } from '@ionic-native/file-chooser/ngx';
   styleUrls: ['./torrent-add.component.scss'],
 })
 export class TorrentAddComponent implements OnInit {
+  @Input() public room: Room;
 
-  constructor(private _modal: ModalController, private _file: FileChooser) { }
+  constructor(private _modal: ModalController, private _file: FileChooser,
+              private _api: ApiService) { }
 
   ngOnInit() {}
 
@@ -21,7 +25,7 @@ export class TorrentAddComponent implements OnInit {
   }
 
   public async addToQueue(form: NgForm) {
-
+    await this._api.post(`rooms/${encodeURIComponent(this.room.Id)}/queue`, form.value);
   }
 
   public async selectFile() {

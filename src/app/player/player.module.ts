@@ -13,6 +13,7 @@ import { UserDetailComponent } from './user-detail/user-detail.component';
 import { TorrentDetailComponent } from './torrent-detail/torrent-detail.component';
 import { TorrentAddComponent } from './torrent-add/torrent-add.component';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import { InviteUserComponent } from './invite-user/invite-user.component';
 
 @NgModule({
 	imports: [
@@ -25,7 +26,8 @@ import { FileChooser } from '@ionic-native/file-chooser/ngx';
 		PlayerPage,
 		UserDetailComponent,
 		TorrentDetailComponent,
-		TorrentAddComponent
+		TorrentAddComponent,
+		InviteUserComponent
 	],
 	providers: [
 		SocketService,
