@@ -15,6 +15,8 @@ import { PlayerState } from '../core/models/player-state';
 import { TorrentStatus } from '../core/models/torrent-status';
 import { environment } from '../../environments/environment';
 import { InviteUserComponent } from './invite-user/invite-user.component';
+import { TorrentDetailComponent } from './torrent-detail/torrent-detail.component';
+import { QueueItem } from '../core/models/queue-item';
 
 const { Haptics } = Plugins;
 
@@ -53,12 +55,12 @@ export class PlayerPage {
 		this.roomName = this._route.snapshot.paramMap.get('name');
 	}
 
-	async ionViewDidEnter() {
+	public async ionViewDidEnter() {
 		if (!this.isInitialized)
 			await this.initializePlayer(this.roomName);
 	}
 
-	async ionViewDidLeave() {
+	public async ionViewDidLeave() {
 		// Destroy sockets
 		this._socket.destroy();
 		// Dispose player state
@@ -96,7 +98,7 @@ export class PlayerPage {
 		await this._router.navigate(['/tabs/rooms']);
 	}
 
-	async openUserDetailModal(email: string) {
+	public async openUserDetailModal(email: string) {
 		const modal = await this._modal.create({
 			component: UserDetailComponent,
 			componentProps: {
@@ -108,7 +110,7 @@ export class PlayerPage {
 		return await modal.present();
 	}
 
-	async openAddToQueueModal() {
+	public async openAddToQueueModal() {
 		const modal = await this._modal.create({
 			component: TorrentAddComponent,
 			componentProps: {
@@ -119,7 +121,7 @@ export class PlayerPage {
 		return await modal.present();
 	}
 
-	async openInviteUserModal() {
+	public async openInviteUserModal() {
 		const modal = await this._modal.create({
 			component: InviteUserComponent,
 			componentProps: {
@@ -130,12 +132,48 @@ export class PlayerPage {
 		return await modal.present();
 	}
 
-	public hasManagerPermissions() {
-		return this.room.Users.find(x => x.User._id === this.auth.userId).Role?.PermissionLevel > 0 || this.room.Owner === this.auth.userId;
+	public async openTorrentDetailModal(queueItem: QueueItem) {
+		const modal = await this._modal.create({
+			component: TorrentDetailComponent,
+			componentProps: {
+				room: this.room,
+				queueItem
+			}
+		});
+
+		return await modal.present();
 	}
 
-	getProgress(hash: string) {
+	public hasManagerPermissions(userId: string = this.auth.userId) {
+		return this.room.Users.find(x => x.User._id === userId).Role?.PermissionLevel > 0 || this.room.Owner === userId;
+	}
+
+	public getProgress(hash: string) {
 		return this.torrentStates[hash]?.progress ?? 0;
+	}
+
+	public forceSync() {
+		if (this.hasManagerPermissions())
+			this._socket.emit('room:player:forceSync', {
+				time: this.player.currentTime(),
+				playing: !this.player.paused()
+			});
+	}
+
+	public getReleaseYear(releaseDate: string) {
+		const date = new Date(releaseDate);
+		return date.getFullYear();
+	}
+
+	async doReorder($event: CustomEvent) {
+		console.log('Dragged from index', $event.detail.from, 'to', $event.detail.to);
+
+		const result = await this._api.put<Room>(`rooms/${this.room.Id}/queue`, {
+			oldPos: $event.detail.from,
+			newPos: $event.detail.to
+		});
+
+		$event.detail.complete(result.Queue);
 	}
 
 	private async initializePlayer(room: string) {
@@ -181,13 +219,12 @@ export class PlayerPage {
 
 
 		/* ROOM EVENTS */
-		this._socket.on('room:torrent:ready', (data: any) => {
-			console.log(data);
-		});
-
 		this._socket.on('room:connected', async () => {
 			await this.hideConnecting();
 			this.initialConnect = true;
+
+			this.room.Queue = this.room.Queue.sort((a, b) => a.Position - b.Position);
+
 			if (this.room.Queue.length === 0)
 				this.playerState = PlayerState.NothingPlaying;
 			else
@@ -195,8 +232,16 @@ export class PlayerPage {
 		});
 
 		this._socket.on('room:updated', async (newRoom: Room) => {
+			const oldFirstItem = this.getFirstQueueItem()?.InfoHash;
+			const newItem = newRoom.Queue.find(x => x.Position === 1)?.InfoHash;
+
 			this.room = newRoom;
-			this.room.Queue.sort(x => x.Position);
+			this.room.Queue = this.room.Queue.sort((a, b) => a.Position - b.Position);
+
+			if (oldFirstItem !== newItem && newItem != null)
+				this.startStream();
+			else if (newItem == null)
+				this.endStream();
 		});
 
 		this._socket.on('room:error', async (error: string) => {
@@ -286,7 +331,8 @@ export class PlayerPage {
 		this._socket.on('disconnect', async () => {
 			await dcMsg.present();
 			this.player.hide();
-			console.log('I am disconnect!');
+			this.playerState = PlayerState.Loading;
+			this.readyTorrents = [];
 		});
 
 		this._socket.on('connect', async () => {
@@ -326,10 +372,11 @@ export class PlayerPage {
 			this.playerState = PlayerState.Ready;
 			this._socket.emit('room:player:askSync');
 			this._socket.once('room:player:answerSync', async (data: { time: number, playing: boolean }) => {
-				this.eventReceived = true;
 				this.player.currentTime(data.time);
-				if (data.playing)
+				if (data.playing) {
+					this.eventReceived = true;
 					await this.player.play();
+				}
 			});
 		});
 
@@ -398,6 +445,17 @@ export class PlayerPage {
 					playing: !this.player.paused()
 				});
 		});
+
+		this._socket.on('room:player:sync', async (data: { user: string, time: number, playing: boolean }) => {
+			if (data.user === this.auth.userId)
+				return;
+
+			this.player.currentTime(data.time);
+			if (data.playing) {
+				this.eventReceived = true;
+				await this.player.play();
+			}
+		});
 	}
 
 	private getFirstQueueItem() {
@@ -416,32 +474,57 @@ export class PlayerPage {
 	}
 
 	private startStream() {
+		this.playerState = PlayerState.Loading;
+		this.player.hide();
 		const item = this.getFirstQueueItem();
 
 		if (this.readyTorrents.includes(item.InfoHash))
-			return this.setSource(item.InfoHash);
+			return this.setSource(item.InfoHash, item.BackdropPath);
 
 		// Ask the server if the torrent is streamable
 		this._socket.emit(`room:torrent:canStream`, item.InfoHash);
 
+		// Wait for response
 		this._socket.once(`room:torrent:${item.InfoHash}:streamable`, (streamable: boolean) => {
 			if (!streamable) {
 				// If not ready yet, wait for the server to emit the ready event
 				this._socket.once(`room:torrent:${item.InfoHash}:ready`, () => {
-					this.setSource(item.InfoHash);
+					this.setSource(item.InfoHash, item.BackdropPath);
 				});
 			} else {
-				this.setSource(item.InfoHash);
+				this.setSource(item.InfoHash, item.BackdropPath);
+				this.readyTorrents.push(item.InfoHash);
 			}
 		});
 
 
 	}
 
-	private setSource(hash: string) {
+	private setSource(hash: string, backdrop: string) {
 		this.player.src({
-			src: `${environment.endpoints.api}stream/${hash}`,
+			src: `${environment.endpoints.api}stream/${hash}?cb=${this.generateCacheBust(15)}`,
 			type: 'video/mp4'
 		});
+		this.player.poster(`https://image.tmdb.org/t/p/original${backdrop}`);
+	}
+
+	private endStream() {
+		this.playerState = PlayerState.NothingPlaying;
+		this.player.pause();
+		this.player.hide();
+	}
+
+	private generateCacheBust(length) {
+		let result = '';
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		const charactersLength = characters.length;
+		for (let i = 0; i < length; i++) {
+			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+		return result;
+	}
+
+	async playNext() {
+		await this._api.post(`rooms/${encodeURIComponent(this.room.Id)}/queue/next`, null);
 	}
 }

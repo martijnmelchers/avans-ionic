@@ -3,4 +3,9 @@ export class QueueItem {
 	MagnetUri: string;
 	Owner: string;
 	InfoHash: string;
+	Title: string;
+	Release: string;
+	Overview: string;
+	BackdropPath: string;
+	PosterPath: string;
 }

@@ -1,14 +1,14 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Add to queue
+      Queue information
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="closeModal()">Close</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content>
+<ion-content *ngIf="queueItem">
   <ion-grid>
     <ion-row>
       <ion-col size="4">
@@ -27,7 +27,7 @@
     <ion-row>
       <ion-col>
         <ion-button expand="block" color="danger" fill="outline" class="ion-padding"
-                    *ngIf="auth.userId == room.Owner || auth.userId == queueItem.Owner"
+                    *ngIf="auth.userId == room.Owner"
                     (click)="removeFromQueue()">
           Remove from queue
         </ion-button>

@@ -15,7 +15,6 @@ export class InRoomGuard implements CanActivate {
 		state: RouterStateSnapshot): Promise<boolean | UrlTree> {
 		try {
 			const roomId = next.paramMap.get('name');
-			console.log(roomId);
 			await this._api.get(`rooms/${encodeURIComponent(roomId)}`);
 			return true;
 		} catch(e) {

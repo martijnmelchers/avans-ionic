@@ -9,11 +9,13 @@
     </ion-toolbar>
 </ion-header>
 <ion-content>
-    <form id="loginForm" #form="ngForm" (ngSubmit)="addToQueue(form)" (keydown)="onEnter($event, form)">
 
-        <ion-grid>
+    <ion-grid>
+        <form #form="ngForm" (ngSubmit)="addToQueue(form)">
+
             <ion-row>
                 <ion-col>
+
                     <ion-item class="ion-margin" color="none">
                         <ion-label position="stacked">Magnet URI</ion-label>
                         <ion-input name="MagnetUri" type="text" ngModel required placeholder="magnet?:...."
@@ -21,14 +23,44 @@
                     </ion-item>
                 </ion-col>
             </ion-row>
+        </form>
+
+        <form #searchForm="ngForm" (ngSubmit)="searchTMDb(searchForm)">
             <ion-row>
-                <ion-grid>
-                    <ion-button expand="block" type="submit" class="ion-no-margin">Search TMDb</ion-button>
-                </ion-grid>
+                <ion-col>
+                    <ion-item class="ion-margin" color="none">
+                        <ion-label position="stacked">Search query</ion-label>
+                        <ion-input name="SearchQuery" type="text" ngModel required placeholder="Shutter Island"
+                                   inputmode="text"></ion-input>
+                    </ion-item>
+                </ion-col>
             </ion-row>
-        </ion-grid>
+            <ion-row>
+                <ion-col>
+                    <ion-radio-group (ionChange)="selectMovie($event)" >
+                        <ion-list-header *ngIf="results.length > 0">
+                            <ion-label>Results</ion-label>
+                        </ion-list-header>
 
+                        <ion-item color="none" lines="none" *ngFor="let item of results">
+                            <ion-label>{{item.title}} ({{getReleaseYear(item.release_date)}})</ion-label>
+                            <ion-radio slot="start" value="{{item.id}}"></ion-radio>
+                        </ion-item>
+                    </ion-radio-group>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <ion-button expand="block" type="submit" class="ion-padding">Search TMDb</ion-button>
+                </ion-col>
+                <ion-col>
+                    <ion-button expand="block" color="success" type="submit" class="ion-padding"
+                                (click)="addToQueue(form)">
+                        Add to queue
+                    </ion-button>
+                </ion-col>
 
-    </form>
-
+            </ion-row>
+        </form>
+    </ion-grid>
 </ion-content>

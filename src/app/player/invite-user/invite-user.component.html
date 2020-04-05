@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Add to queue
+      Invite user to room
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="closeModal()">Close</ion-button>
@@ -9,13 +9,13 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <form id="loginForm" #form="ngForm" (ngSubmit)="inviteUser(form)" (keydown)="onEnter($event, form)">
+  <form id="loginForm" #form="ngForm" (ngSubmit)="inviteUser(form)">
 
     <ion-grid>
       <ion-row>
         <ion-col>
           <ion-item class="ion-margin" color="none">
-            <ion-label position="stacked">Magnet URI</ion-label>
+            <ion-label position="stacked">User email</ion-label>
             <ion-input name="email" type="email" ngModel required placeholder="example@user.com"
                        inputmode="email"></ion-input>
           </ion-item>
@@ -23,7 +23,7 @@
       </ion-row>
       <ion-row>
         <ion-grid>
-          <ion-button expand="block" type="submit" class="ion-no-margin">Search TMDb</ion-button>
+          <ion-button expand="block" type="submit" class="ion-padding" color="success">Invite</ion-button>
         </ion-grid>
       </ion-row>
     </ion-grid>

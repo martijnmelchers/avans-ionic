@@ -25,7 +25,6 @@ export class LoginPage implements OnInit {
     }
 
     loginWithGoogle() {
-        // TODO: Add login with google
         this._iab.create('http://google.com');
     }
 

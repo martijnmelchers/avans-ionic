@@ -15,19 +15,52 @@
             <ion-col>
                 <ion-item color="none" lines="none">
                     <ion-avatar slot="start">
-                        <ion-img src="./assets/default.png"></ion-img>
+                        <ion-img [src]="user.profilePicture" *ngIf="user.profilePicture"></ion-img>
+                        <ion-img src="./assets/default.png" *ngIf="!user.profilePicture"></ion-img>
                     </ion-avatar>
                     <ion-label>
                         <h2>{{user.firstName}} {{user.lastName}}</h2>
-                        <p>{{user.email}}</p>
+                        <p>{{user.email}} - {{role ? role?.Name : 'Admin'}}</p>
                     </ion-label>
                 </ion-item>
             </ion-col>
         </ion-row>
-
-        <ion-row>
+        <ion-row *ngIf="role && this.auth.userId == this.room.Owner">
             <ion-col>
-                Queue
+                <ion-radio-group value="{{role?.PermissionLevel}}" (ionChange)="changeRole($event)">
+                    <ion-list-header>
+                        <ion-label>Role</ion-label>
+                    </ion-list-header>
+
+                    <ion-item color="none" lines="none">
+                        <ion-label>Viewer</ion-label>
+                        <ion-radio slot="start" value="0"></ion-radio>
+                    </ion-item>
+
+                    <ion-item color="none" lines="none">
+                        <ion-label>Manager</ion-label>
+                        <ion-radio slot="start" value="1"></ion-radio>
+                    </ion-item>
+                </ion-radio-group>
+            </ion-col>
+        </ion-row>
+        <ion-row *ngIf="role?.PermissionLevel >= 1 || room.Owner == user._id">
+            <ion-col>
+                <ion-list-header>
+                    <ion-label>Queue</ion-label>
+                </ion-list-header>
+                <div *ngFor="let item of queue" (click)="openTorrentDetailModal(item)">
+                    <ion-item class="ion-item-full" button lines="none" color="none">
+                        <ion-label class="ion-text-wrap">
+                            {{item.Title}} ({{getReleaseYear(item.Release)}})
+                        </ion-label>
+                    </ion-item>
+                </div>
+                <ion-item *ngIf="queue.length === 0" class="ion-item-full" lines="none" color="none">
+                    <ion-label>
+                        {{user.firstName}} has not added anything to the queue!
+                    </ion-label>
+                </ion-item>
             </ion-col>
         </ion-row>
         <ion-row>
